@@ -964,3 +964,4 @@ coverage*[.json, .xml, .info]
 /task-app/src/site/resources/assets/.gitkeep
 /task-app/src/site/resources/assets
 /task-app/src/site/resources/images/rteu_logo.jpg
+task-app/tasks.bin
