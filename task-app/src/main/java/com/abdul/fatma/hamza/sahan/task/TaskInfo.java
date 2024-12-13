@@ -33,29 +33,29 @@ public class TaskInfo {
     public int[] getDependencies() { return dependencies; }
     public void setDependencies(int[] dependencies) { this.dependencies = dependencies; }
 
-    // Dosyaya kaydetme
     public void writeToFile(RandomAccessFile raf) throws IOException {
-        raf.writeInt(id);
-        raf.writeUTF(name);
-        raf.writeUTF(description);
-        raf.writeUTF(category);
-        raf.writeUTF(dueDate);
-        raf.writeInt(dependencyCount);
+        raf.writeInt(id);  // Görev ID'si
+        raf.writeUTF(name);  // Görev adı
+        raf.writeUTF(description);  // Görev açıklaması
+        raf.writeUTF(category);  // Görev kategorisi
+        raf.writeUTF(dueDate);  // Görev bitiş tarihi
+        raf.writeInt(dependencyCount);  // Bağımlılık sayısı
         for (int i = 0; i < dependencyCount; i++) {
-            raf.writeInt(dependencies[i]);
+            raf.writeInt(dependencies[i]);  // Bağımlılıkların ID'leri
         }
     }
 
-    // Dosyadan okuma
+
     public void readFromFile(RandomAccessFile raf) throws IOException {
-        this.id = raf.readInt();
-        this.name = raf.readUTF();
-        this.description = raf.readUTF();
-        this.category = raf.readUTF();
-        this.dueDate = raf.readUTF();
-        this.dependencyCount = raf.readInt();
+        this.id = raf.readInt();  // Görev ID'si
+        this.name = raf.readUTF();  // Görev adı
+        this.description = raf.readUTF();  // Görev açıklaması
+        this.category = raf.readUTF();  // Görev kategorisi
+        this.dueDate = raf.readUTF();  // Görev bitiş tarihi
+        this.dependencyCount = raf.readInt();  // Bağımlılık sayısı
         for (int i = 0; i < dependencyCount; i++) {
-            this.dependencies[i] = raf.readInt();
+            this.dependencies[i] = raf.readInt();  // Bağımlılıkların ID'leri
         }
     }
+
 }

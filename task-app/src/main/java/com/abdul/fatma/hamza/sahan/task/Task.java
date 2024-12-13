@@ -19,6 +19,8 @@ public class Task {
     private static XORNode xorTail = null;
     private static TaskNode head = null;
     private static TaskNode tail = null;
+
+
     public void clearScreen() {
         System.out.print("\033[H\033[2J"); // ANSI escape kodları
         System.out.flush(); // Terminalde ekranın gerçekten temizlenmesi için flush edilir
@@ -646,8 +648,11 @@ public class Task {
             return 0;
         }
 
+        // Yeni görevin ID'sini mevcut görevler arasında en yüksek ID'nin bir fazlası olarak belirle
+        int newId = getNewTaskId(taskList);
+
         TaskInfo newTask = new TaskInfo();
-        newTask.setId(taskCount + 1);  // Yeni görevin ID'sini güncel taskCount'a göre ayarlıyoruz
+        newTask.setId(newId);  // Yeni görevin ID'sini ayarla
 
         Scanner scanner = new Scanner(System.in);
 
@@ -689,14 +694,15 @@ public class Task {
         return 1;
     }
 
+
     public static void saveTasks(ArrayList<TaskInfo> taskList) {
         try (RandomAccessFile raf = new RandomAccessFile("tasks.bin", "rw")) {
             // Task sayısını dosyaya yazalım
-            raf.writeInt(taskList.size());
+            raf.writeInt(taskList.size()); // Görev sayısını kaydediyoruz
 
-            // Her task'ı dosyaya yazıyoruz
+            // Görevleri dosyaya yazıyoruz
             for (TaskInfo task : taskList) {
-                task.writeToFile(raf);  // Task'ı dosyaya yaz
+                task.writeToFile(raf); // Task'ı dosyaya yaz
             }
 
             System.out.println("Tasks saved successfully!");
@@ -713,11 +719,14 @@ public class Task {
         }
 
         try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
-            int taskCount = raf.readInt();  // Read the number of tasks
+            int taskCount = raf.readInt();  // Dosyadan görev sayısını oku
+            System.out.println("Task count read from file: " + taskCount);  // Log ekledik
+
             for (int i = 0; i < taskCount; i++) {
                 TaskInfo task = new TaskInfo();
-                task.readFromFile(raf);  // Read each task
-                taskList.add(task);  // Add task to the list
+                task.readFromFile(raf);  // Dosyadan her bir görevi oku
+                System.out.println("Task loaded: ID=" + task.getId() + ", Name=" + task.getName());  // Log ekledik
+                taskList.add(task);  // Görevi listeye ekle
             }
 
             System.out.println(taskCount + " tasks loaded successfully!");
@@ -727,6 +736,9 @@ public class Task {
             return 0;
         }
     }
+
+
+
 
 
     // addTaskToXORList: Yeni görevi XOR bağlı listeye ekler
@@ -853,6 +865,21 @@ public class Task {
 
         enterToContinue();  // Kullanıcıya devam etmesi için bekletme
     }
+
+    public static int getNewTaskId(ArrayList<TaskInfo> taskList) {
+        int maxId = 0;
+
+        // Mevcut görevlerin en yüksek ID'sini bul
+        for (TaskInfo task : taskList) {
+            if (task.getId() > maxId) {
+                maxId = task.getId();
+            }
+        }
+
+        // Yeni ID en yüksek ID'nin bir fazlası olmalı
+        return maxId + 1;
+    }
+
 
 
 }
