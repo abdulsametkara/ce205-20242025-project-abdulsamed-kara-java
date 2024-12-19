@@ -98,4 +98,24 @@ public class taskTest {
       assertEquals(2, task.getDependencyCount());
     }
   }
+  @Test
+  public void testOpeningScreenMenu() {
+    // Arrange: Task sınıfından bir örnek oluştur
+    Task task = new Task(); // 'Task' sınıfını doğru bir şekilde kullanın
+
+    // Act: openingScreenMenu metodunu çağır
+    task.openingScreenMenu();
+
+    // Assert: Ekran çıktılarının doğru olup olmadığını kontrol et
+    String output = outContent.toString();
+
+    // Ana menü başlığının doğru şekilde yazıldığını doğrula
+    assertTrue(output.contains("WELCOME TO TASK MANAGER!"));
+    assertTrue(output.contains("=============== MAIN MENU ==============="));
+    assertTrue(output.contains("1. Login"));
+    assertTrue(output.contains("2. Register"));
+    assertTrue(output.contains("3. Exit Program"));
+    assertTrue(output.contains("Please enter a number:"));
+  }
+
 }
