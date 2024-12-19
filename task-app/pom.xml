@@ -145,8 +145,8 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<includes>
-						<include>**/TaskAppTest.java</include>
 						<include>**/TaskTest.java</include>
+						<include>**/TaskAppTest.java</include>
 					</includes>
 				</configuration>
 			</plugin>
@@ -249,8 +249,7 @@
 							<transformers>
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>
-										com.abdul.fatma.hamza.sahan.TaskApp</mainClass>
+                        <mainClass>com.abdul.fatma.hamza.sahan.task.taskApp</mainClass>
 								</transformer>
 							</transformers>
 						</configuration>
