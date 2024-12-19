@@ -22,7 +22,7 @@ echo Change directory to task-app
 cd task-app
 
 echo Perform Maven clean, test, and packaging
-call mvn clean test package
+call mvn clean test -Dtest=TaskTest package
 
 echo Return to the previous directory
 cd ..

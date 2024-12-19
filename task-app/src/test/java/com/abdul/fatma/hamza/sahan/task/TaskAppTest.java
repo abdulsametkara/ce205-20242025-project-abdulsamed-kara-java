@@ -7,7 +7,7 @@ import java.nio.file.Paths;
 import java.util.PriorityQueue;
 import static org.junit.Assert.*;
 
-public class taskAppTest {
+public class TaskAppTest {
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
     private final InputStream originalIn = System.in;
