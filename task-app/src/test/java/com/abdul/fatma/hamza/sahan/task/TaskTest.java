@@ -114,6 +114,7 @@ public class TaskTest {
       assertEquals(2, task.getDependencyCount());
     }
   }
+
   @Test
   public void testOpeningScreenMenu() {
     // Arrange: Task sınıfından bir örnek oluştur
@@ -146,6 +147,7 @@ public class TaskTest {
     String output = outContent.toString();
     assertTrue(output.contains("Invalid input. Please enter a number.")); // Mesajın çıktıda bulunup bulunmadığını kontrol et
   }
+
   @Test
   public void testPrintMainMenu() {
     // Arrange: Task sınıfını örnek olarak oluştur
@@ -165,6 +167,7 @@ public class TaskTest {
     assertTrue(output.contains("6. Exit")); // Menüdeki seçenek
     assertTrue(output.contains("Please enter your choice:")); // Sonuçtaki prompt
   }
+
   @Test
   public void testPrintCreateTaskMenu() {
     // Arrange: Task sınıfını örnek olarak oluştur
@@ -187,6 +190,7 @@ public class TaskTest {
     assertTrue(output.contains("9. Exit")); // Menüdeki seçenek
     assertTrue(output.contains("Please enter your choice:")); // Sonuçtaki prompt
   }
+
   @Test
   public void testPrintDeadlineSettingsMenu() {
     // Arrange: Task sınıfını örnek olarak oluştur
@@ -204,6 +208,7 @@ public class TaskTest {
     assertTrue(output.contains("4. Exit")); // Menüdeki seçenek
     assertTrue(output.contains("Please enter your choice:")); // Sonuçtaki prompt
   }
+
   @Test
   public void testPrintReminderSystemMenu() {
     // Arrange: Task sınıfını örnek olarak oluştur
@@ -220,6 +225,7 @@ public class TaskTest {
     assertTrue(output.contains("3. Exit")); // Menüdeki seçenek
     assertTrue(output.contains("Please enter your choice:")); // Sonuçtaki prompt
   }
+
   @Test
   public void testPrintTaskPrioritizationMenu() {
     // Arrange: Task sınıfını örnek olarak oluştur
@@ -236,6 +242,7 @@ public class TaskTest {
     assertTrue(output.contains("3. Exit")); // Menüdeki seçenek
     assertTrue(output.contains("Please enter your choice:")); // Sonuçtaki prompt
   }
+
   @Test
   public void testPrintAlgorithmsMenu() {
     // Arrange: Task sınıfını örnek olarak oluştur
@@ -275,7 +282,7 @@ public class TaskTest {
     // Cleanup
     System.setIn(originalIn);
   }
-  
+
   @Test
   public void testCreateTaskAddMenu() {   // Arrange
     String input = "Task1\nDescription1\nCategory1\n2024-12-31\n1\n2\n";
@@ -328,5 +335,128 @@ public class TaskTest {
     System.setIn(originalIn);
   }
 
+  @Test
+  public void testCreateTaskMenuView() {
+    // Arrange
+    String input = "2\n\n\n\n9\n6\n3\n";
+    InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simulated user input
+    System.setOut(new PrintStream(outContent)); // Capture output
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.createTaskMenu();
+    // Cleanup
+    System.setIn(originalIn);
+  }
+
+  @Test
+  public void testCreateTaskMenuCatogorize() {
+    // Arrange
+    String input = "3\na\n\n\n9\n6\n3\n";
+    InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simulated user input
+    System.setOut(new PrintStream(outContent)); // Capture output
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.createTaskMenu();
+    // Cleanup
+    System.setIn(originalIn);
+  }
+
+  @Test
+  public void testCreateTaskMenuDependencies() {
+    // Arrange
+    String input = "4\n1\n\n9\n6\n3\n";
+    InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simulated user input
+    System.setOut(new PrintStream(outContent)); // Capture output
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.createTaskMenu();
+    // Cleanup
+    System.setIn(originalIn);
+  }
+
+  @Test
+  public void testCreateTaskMenuAnalyzeSCC() {
+    // Arrange
+    String input = "5\n\n9\n6\n3\n";
+    InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simulated user input
+    System.setOut(new PrintStream(outContent)); // Capture output
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.createTaskMenu();
+    // Cleanup
+    System.setIn(originalIn);
+  }
+
+  @Test
+  public void testCreateTaskMenuSearchByKeyword() {
+    // Arrange
+    String input = "6\na\n\n9\n6\n3\n";
+    InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simulated user input
+    System.setOut(new PrintStream(outContent)); // Capture output
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.createTaskMenu();
+    // Cleanup
+    System.setIn(originalIn);
+  }
+  @Test
+  public void testCreateTaskMenuDoubleLinkedList() {
+    // Arrange
+    String input = "7\n1\n2\n3\n\n9\n6\n3\n";
+    InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simulated user input
+    System.setOut(new PrintStream(outContent)); // Capture output
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.createTaskMenu();
+    // Cleanup
+    System.setIn(originalIn);
+  }
+/*  @Test
+  public void testCreateTaskMenuXORLinkedList() {
+    // Arrange
+    String input = "8\n1\n2\n0\n\n9\n6\n3\n";
+    InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simulated user input
+    System.setOut(new PrintStream(outContent)); // Capture output
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.createTaskMenu();
+    // Cleanup
+    System.setIn(originalIn);
+  }*/
 
 }
