@@ -111,7 +111,8 @@ public class Task {
         System.out.println("========================================");
         System.out.println("1. Assign Deadline");
         System.out.println("2. View Deadlines");
-        System.out.println("3. Exit");
+        System.out.println("3. View Deadlines In Range");
+        System.out.println("4. Exit");
         System.out.println("========================================");
         System.out.print("Please enter your choice: ");
     }
@@ -343,6 +344,11 @@ public class Task {
                     enterToContinue();
                     break;
                 case 3:
+                    BPlusTree tree = new BPlusTree();
+                    tree.viewDeadlinesInRange();
+                    enterToContinue();
+                    break;
+                case 4:
                     return; // Menüden çıkış
                 default:
                     clearScreen();
@@ -1046,6 +1052,6 @@ public class Task {
         System.out.println("-------------------------------------------");
         enterToContinue(); // Devam etmek için kullanıcıdan girdi al
         return 1;
-    }
+    }   
 
 }
