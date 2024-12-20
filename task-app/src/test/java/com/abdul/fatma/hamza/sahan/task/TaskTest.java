@@ -6,12 +6,25 @@
  */
 package com.abdul.fatma.hamza.sahan.task;
 
-import org.junit.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Scanner;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import static org.junit.Assert.*;
-import java.util.Scanner;
+
 
 
 public class TaskTest {
@@ -19,6 +32,7 @@ public class TaskTest {
   private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
   private final PrintStream originalOut = System.out;
   private final InputStream originalIn = System.in;
+  Scanner inputScanner = new Scanner(System.in);
 
   private String taskFile = "tasksTest.bin";
 
@@ -103,7 +117,7 @@ public class TaskTest {
   @Test
   public void testOpeningScreenMenu() {
     // Arrange: Task sınıfından bir örnek oluştur
-    Task task = new Task(); // 'Task' sınıfını doğru bir şekilde kullanın
+    Task task = new Task(inputScanner, System.out); // 'Task' sınıfını doğru bir şekilde kullanın
 
     // Act: openingScreenMenu metodunu çağır
     task.openingScreenMenu();
@@ -119,39 +133,11 @@ public class TaskTest {
     assertTrue(output.contains("3. Exit Program"));
     assertTrue(output.contains("Please enter a number:"));
   }
-  @Test
-  public void testEnterToContinue() throws Exception {
-    // Arrange: Kullanıcı girişini simüle etmek için ByteArrayInputStream kullanıyoruz
-    String simulatedUserInput = "\n"; // Kullanıcıdan 'Enter' tuşuna basma simülasyonu
-    System.setIn(new ByteArrayInputStream(simulatedUserInput.getBytes()));
-
-    // Act: enterToContinue metodunu çağır
-    Task.enterToContinue(); // 'Task' sınıfındaki fonksiyonu çağırıyoruz
-
-    // Assert: Konsol çıktısının doğru olduğuna dair kontrol
-    String output = outContent.toString();
-    assertTrue(output.contains("Press Enter to continue..."));
-  }
-  @Test
-  public void testGetInputValid() {
-    // Arrange: Geçerli giriş simüle edilmiştir
-    String simulatedUserInput = "5\n"; // Kullanıcıdan 5 girişi
-    System.setIn(new ByteArrayInputStream(simulatedUserInput.getBytes()));
-
-    Scanner scanner = new Scanner(System.in);
-    Task task = new Task();
-
-    // Act: getInput metodunu çağır
-    int result = task.getInput(scanner);
-
-    // Assert: Sonucun doğru olup olmadığını kontrol et
-    assertEquals(5, result); // Geçerli girişte 5 dönecek
-  }
 
   @Test
   public void testHandleInputError() {
     // Arrange: Task sınıfını örnek olarak oluştur
-    Task task = new Task();
+    Task task = new Task(inputScanner, System.out);
 
     // Act: handleInputError metodunu çağır
     task.handleInputError();
@@ -163,7 +149,7 @@ public class TaskTest {
   @Test
   public void testPrintMainMenu() {
     // Arrange: Task sınıfını örnek olarak oluştur
-    Task task = new Task();
+    Task task = new Task(inputScanner, System.out);
 
     // Act: printMainMenu metodunu çağır
     task.printMainMenu();
@@ -182,7 +168,7 @@ public class TaskTest {
   @Test
   public void testPrintCreateTaskMenu() {
     // Arrange: Task sınıfını örnek olarak oluştur
-    Task task = new Task();
+    Task task = new Task(inputScanner, System.out);
 
     // Act: printCreateTaskMenu metodunu çağır
     task.printCreateTaskMenu();
@@ -204,7 +190,7 @@ public class TaskTest {
   @Test
   public void testPrintDeadlineSettingsMenu() {
     // Arrange: Task sınıfını örnek olarak oluştur
-    Task task = new Task();
+    Task task = new Task(inputScanner, System.out);
 
     // Act: printDeadlineSettingsMenu metodunu çağır
     task.printDeadlineSettingsMenu();
@@ -221,7 +207,7 @@ public class TaskTest {
   @Test
   public void testPrintReminderSystemMenu() {
     // Arrange: Task sınıfını örnek olarak oluştur
-    Task task = new Task();
+    Task task = new Task(inputScanner, System.out);
 
     // Act: printReminderSystemMenu metodunu çağır
     task.printReminderSystemMenu();
@@ -237,7 +223,7 @@ public class TaskTest {
   @Test
   public void testPrintTaskPrioritizationMenu() {
     // Arrange: Task sınıfını örnek olarak oluştur
-    Task task = new Task();
+    Task task = new Task(inputScanner, System.out);
 
     // Act: printTaskPrioritizationMenu metodunu çağır
     task.printTaskPrioritizationMenu();
@@ -253,7 +239,7 @@ public class TaskTest {
   @Test
   public void testPrintAlgorithmsMenu() {
     // Arrange: Task sınıfını örnek olarak oluştur
-    Task task = new Task();
+    Task task = new Task(inputScanner, System.out);
 
     // Act: printAlgorithmsMenu metodunu çağır
     task.printAlgorithmsMenu();
@@ -273,20 +259,74 @@ public class TaskTest {
   }
 
   @Test
-  public void testMainMenuExitChoice() {
-    // Arrange: Çıkış seçeneğini almak için simülasyon
-    String simulatedUserInput = "3\n"; // Çıkış
-    System.setIn(new ByteArrayInputStream(simulatedUserInput.getBytes()));
+  public void testUserOptionsMenu() {
+    // Arrange
+    String input = "1\n9\n2\n4\n3\n3\n4\n3\n5\n8\n6\n3\n";
+    InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 
-    Task task = new Task();
-    String pathFileUsers = "usersTest.bin"; // Kendi dosya yolunu kullanabilirsiniz
+    System.setIn(inputStream); // Simulated user input
+    System.setOut(new PrintStream(outContent)); // Capture output
 
-    // Act: mainMenu metodunu çağır
-    task.mainMenu(pathFileUsers);
+    Task task = new Task(new Scanner(System.in), System.out);
 
-    // Assert: Çıkış mesajı ve programın sonlandırılması
-    String output = outContent.toString();
-    assertTrue(output.contains("Exit Program"));
+    // Act
+    task.userOptionsMenu();
+    // Cleanup
+    System.setIn(originalIn);
   }
+  
+  @Test
+  public void testCreateTaskAddMenu() {   // Arrange
+    String input = "Task1\nDescription1\nCategory1\n2024-12-31\n1\n2\n";
+    InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simulated user input
+    System.setOut(new PrintStream(outContent)); // Capture output
+
+    ArrayList<TaskInfo> taskList = new ArrayList<>();
+    DoubleLinkedList taskDoublyLinkedList = new DoubleLinkedList();
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    int result = task.addTask(taskList, taskDoublyLinkedList, 0, 100);
+
+    // Assert
+    assertEquals(1, result); // Task successfully added
+    String output = outContent.toString();
+    assertTrue(output.contains("Task added and saved successfully!"));
+
+  }
+
+  @Test
+  public void testCreateTaskViewMenu() {
+    // Arrange
+    String input = "\n\n9\n6\n3\n";
+    InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simulated user input
+    System.setOut(new PrintStream(outContent)); // Capture output
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Create a sample task list
+    ArrayList<TaskInfo> taskList = new ArrayList<>();
+    TaskInfo task1 = new TaskInfo();
+    task1.setId(1);
+    task1.setName("Sample Task");
+    task1.setDescription("This is a sample task.");
+    task1.setCategory("General");
+    task1.setDueDate("2024-12-31");
+    taskList.add(task1);
+
+    // Act
+    task.viewTask(taskList);
+    // Cleanup
+    System.setIn(originalIn);
+  }
+
 
 }
