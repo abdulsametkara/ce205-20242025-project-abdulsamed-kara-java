@@ -11,6 +11,17 @@ import java.util.PriorityQueue;
 
 public class Task {
 
+    /** Scanner object for user input. */
+    public Scanner scanner;
+    /** PrintStream object for output. */
+    public PrintStream out;
+    public Task(Scanner scanner, PrintStream out) {
+        this.scanner = scanner;
+        this.out = out;
+    }
+    public boolean isTestMode = false;
+
+
 
     public static final int TABLE_SIZE = 100;  // Hash tablosunun boyutu
     private static LinkedList<User>[] hashTable = new LinkedList[TABLE_SIZE];
@@ -27,145 +38,152 @@ public class Task {
     private static DoubleLinkedList taskDoublyLinkedList = new DoubleLinkedList();
 
     public void clearScreen() {
-        System.out.print("\033[H\033[2J"); // ANSI escape kodları
-        System.out.flush(); // Terminalde ekranın gerçekten temizlenmesi için flush edilir
+        out.print("\033[H\033[2J"); // ANSI escape kodları
+        out.flush(); // Terminalde ekranın gerçekten temizlenmesi için flush edilir
     }
 
-    public static void enterToContinue() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Press Enter to continue...");
-        scanner.nextLine();  // Kullanıcıdan bir tuşa basmasını bekler
+    public  boolean enterToContinue() {
+        out.println("Press enter to continue...");
+        if (!isTestMode) {
+            scanner.nextLine();
+        }
+        return true;
     }
 
 
-    public int getInput(Scanner scanner) {
+
+    public int getInput() {
         try {
-            return scanner.nextInt();
+            int input = scanner.nextInt();
+            scanner.nextLine(); // Satır sonunu temizle
+            return input;
         } catch (Exception e) {
-            scanner.nextLine(); // Geçersiz girişleri temizler
-            handleInputError(); // Hata mesajını yazdırır
+            scanner.nextLine(); // Hatalı girişleri temizle
+            handleInputError(); // Hata mesajını yazdır
             return -2; // Hata durumunda -2 döner
         }
     }
 
 
+
+
+
     public void handleInputError() {
-        System.out.println("Invalid input. Please enter a number."); // Hata mesajı
+        out.println("Invalid input. Please enter a number."); // Hata mesajı
     }
 
 
     public void openingScreenMenu() {
         clearScreen(); // clearScreen metodu çağrılır
-        System.out.println("***************************************");
-        System.out.println("*                                     *");
-        System.out.println("*      WELCOME TO TASK MANAGER!       *");
-        System.out.println("*                                     *");
-        System.out.println("***************************************\n");
+        out.println("***************************************");
+        out.println("*                                     *");
+        out.println("*      WELCOME TO TASK MANAGER!       *");
+        out.println("*                                     *");
+        out.println("***************************************\n");
 
-        System.out.println("=============== MAIN MENU ===============");
-        System.out.println("1. Login");
-        System.out.println("2. Register");
-        System.out.println("3. Exit Program");
-        System.out.println("=========================================");
-        System.out.print("Please enter a number: ");
+        out.println("=============== MAIN MENU ===============");
+        out.println("1. Login");
+        out.println("2. Register");
+        out.println("3. Exit Program");
+        out.println("=========================================");
+        out.print("Please enter a number: ");
 
     }
 
     public void printMainMenu() {
         clearScreen(); // clearScreen metodu çağrılır (tanımlamanız gerekecek)
-        System.out.println("========================================");
-        System.out.println("        MAIN MENU - TASK MANAGER       ");
-        System.out.println("========================================");
-        System.out.println("1. Create Task");
-        System.out.println("2. Deadline Settings");
-        System.out.println("3. Reminder System");
-        System.out.println("4. Task Prioritization");
-        System.out.println("5. Algorithms");
-        System.out.println("6. Exit");
-        System.out.println("========================================");
-        System.out.print("Please enter your choice: ");
+        out.println("========================================");
+        out.println("        MAIN MENU - TASK MANAGER       ");
+        out.println("========================================");
+        out.println("1. Create Task");
+        out.println("2. Deadline Settings");
+        out.println("3. Reminder System");
+        out.println("4. Task Prioritization");
+        out.println("5. Algorithms");
+        out.println("6. Exit");
+        out.println("========================================");
+        out.print("Please enter your choice: ");
     }
 
     public void printCreateTaskMenu() {
         clearScreen(); // clearScreen metodu çağrılır
-        System.out.println("========================================");
-        System.out.println("           CREATE TASK MENU            ");
-        System.out.println("========================================");
-        System.out.println("1. Add Task");
-        System.out.println("2. View Tasks");
-        System.out.println("3. Categorize Tasks");
-        System.out.println("4. Dependencies of Functions");
-        System.out.println("5. Analyze SCC");
-        System.out.println("6. Search By Keyword");
-        System.out.println("7. Double Linked List");
-        System.out.println("8. XOR Linked List");
-        System.out.println("9. Exit");
-        System.out.println("========================================");
-        System.out.print("Please enter your choice: ");
+        out.println("========================================");
+        out.println("           CREATE TASK MENU            ");
+        out.println("========================================");
+        out.println("1. Add Task");
+        out.println("2. View Tasks");
+        out.println("3. Categorize Tasks");
+        out.println("4. Dependencies of Functions");
+        out.println("5. Analyze SCC");
+        out.println("6. Search By Keyword");
+        out.println("7. Double Linked List");
+        out.println("8. XOR Linked List");
+        out.println("9. Exit");
+        out.println("========================================");
+        out.print("Please enter your choice: ");
     }
 
     public void printDeadlineSettingsMenu() {
         clearScreen(); // clearScreen metodu çağrılır
-        System.out.println("========================================");
-        System.out.println("       DEADLINE SETTINGS MENU          ");
-        System.out.println("========================================");
-        System.out.println("1. Assign Deadline");
-        System.out.println("2. View Deadlines");
-        System.out.println("3. View Deadlines In Range");
-        System.out.println("4. Exit");
-        System.out.println("========================================");
-        System.out.print("Please enter your choice: ");
+        out.println("========================================");
+        out.println("       DEADLINE SETTINGS MENU          ");
+        out.println("========================================");
+        out.println("1. Assign Deadline");
+        out.println("2. View Deadlines");
+        out.println("3. View Deadlines In Range");
+        out.println("4. Exit");
+        out.println("========================================");
+        out.print("Please enter your choice: ");
     }
 
     public void printReminderSystemMenu() {
         clearScreen(); // clearScreen metodu çağrılır
-        System.out.println("========================================");
-        System.out.println("        REMINDER SYSTEM MENU            ");
-        System.out.println("========================================");
-        System.out.println("1. Set Reminders");
-        System.out.println("2. Notification Settings");
-        System.out.println("3. Exit");
-        System.out.println("========================================");
-        System.out.print("Please enter your choice: ");
+        out.println("========================================");
+        out.println("        REMINDER SYSTEM MENU            ");
+        out.println("========================================");
+        out.println("1. Set Reminders");
+        out.println("2. Notification Settings");
+        out.println("3. Exit");
+        out.println("========================================");
+        out.print("Please enter your choice: ");
     }
 
     public void printTaskPrioritizationMenu() {
         clearScreen(); // clearScreen metodu çağrılır
-        System.out.println("========================================");
-        System.out.println("       TASK PRIORITIZATION MENU         ");
-        System.out.println("========================================");
-        System.out.println("1. Mark Task Importance");
-        System.out.println("2. Importance Ordering");
-        System.out.println("3. Exit");
-        System.out.println("========================================");
-        System.out.print("Please enter your choice: ");
+        out.println("========================================");
+        out.println("       TASK PRIORITIZATION MENU         ");
+        out.println("========================================");
+        out.println("1. Mark Task Importance");
+        out.println("2. Importance Ordering");
+        out.println("3. Exit");
+        out.println("========================================");
+        out.print("Please enter your choice: ");
     }
 
     public void printAlgorithmsMenu() {
         clearScreen(); // clearScreen metodu çağrılır
-        System.out.println("========================================");
-        System.out.println("              ALGORITHMS MENU            ");
-        System.out.println("========================================");
-        System.out.println("1. Progressive Overflow");
-        System.out.println("2. Linear Probing");
-        System.out.println("3. Quadratic Probing");
-        System.out.println("4. Double Hashing");
-        System.out.println("5. Use of Buckets");
-        System.out.println("6. Linear Quotient");
-        System.out.println("7. Brent's Method");
-        System.out.println("8. Exit to Main Menu");
-        System.out.println("========================================");
-        System.out.print("Please enter your choice: ");
+        out.println("========================================");
+        out.println("              ALGORITHMS MENU            ");
+        out.println("========================================");
+        out.println("1. Progressive Overflow");
+        out.println("2. Linear Probing");
+        out.println("3. Quadratic Probing");
+        out.println("4. Double Hashing");
+        out.println("5. Use of Buckets");
+        out.println("6. Linear Quotient");
+        out.println("7. Brent's Method");
+        out.println("8. Exit to Main Menu");
+        out.println("========================================");
+        out.print("Please enter your choice: ");
     }
 
     public void mainMenu(String pathFileUsers) {
         int choice;
-        Scanner scanner = new Scanner(System.in);
 
         while (true) {
             clearScreen(); // Ekranı temizle
             openingScreenMenu(); // Açılış menüsünü göster
-            choice = getInput(scanner); // Kullanıcıdan seçim al
+            choice = getInput(); // Kullanıcıdan seçim al
 
             if (choice == -2) {
                 handleInputError(); // Hata durumunda mesaj ver
@@ -187,10 +205,10 @@ public class Task {
                     break;
 
                 case 3:
-                    System.out.println("Exit Program");
+                    out.println("Exit Program");
                     return; // Programdan çık
                 default:
-                    System.out.println("Invalid choice. Please try again.");
+                    out.println("Invalid choice. Please try again.");
                     enterToContinue(); // Geçersiz seçimde devam etmek için bekle
                     break;
             }
@@ -198,12 +216,11 @@ public class Task {
     }
 
     public void userOptionsMenu() {
-        Scanner scanner = new Scanner(System.in);
         int choice;
 
         while (true) {
             printMainMenu(); // Ana menüyü gösterir
-            choice = getInput(scanner); // Kullanıcı girişini alır
+            choice = getInput(); // Kullanıcı girişini alır
 
             if (choice == -2) {
                 handleInputError(); // Giriş hatası varsa işlem yapılır
@@ -231,7 +248,7 @@ public class Task {
                     return; // Programdan çıkar
                 default:
                     clearScreen(); // Geçersiz giriş için ekran temizlenir
-                    System.out.println("Invalid choice. Please try again.");
+                    out.println("Invalid choice. Please try again.");
                     enterToContinue(); // Devam etmek için beklenir
                     break;
             }
@@ -240,7 +257,6 @@ public class Task {
 
     public void createTaskMenu() {
         int maxTasks = 100;
-        Scanner scanner = new Scanner(System.in);
         int choice;
 
         TaskQueue taskQueue = new TaskQueue(); // TaskQueue'yu burada tanımladık
@@ -248,7 +264,7 @@ public class Task {
 
         while (true) {
             printCreateTaskMenu(); // Menü gösterilir
-            choice = getInput(scanner); // Kullanıcı girişini alır
+            choice = getInput(); // Kullanıcı girişini alır
 
             if (choice == -2) {
                 handleInputError(); // Giriş hatası durumunda işlem yapılır
@@ -271,13 +287,13 @@ public class Task {
                     enterToContinue();
                     break;
                 case 4:
-                    System.out.print("Enter the task ID to view its dependencies: ");
+                    out.print("Enter the task ID to view its dependencies: ");
                     int taskId = scanner.nextInt();
 
                     if (taskId > 0 && taskId <= taskList.size()) {
                         printDependencies(taskList, taskId); // Bağımlılıkları yazdır
                     } else {
-                        System.out.println("Invalid task ID.");
+                        out.println("Invalid task ID.");
                     }
                     enterToContinue(); // Kullanıcıya devam için bekletme
                     break;
@@ -289,7 +305,7 @@ public class Task {
                     analyzer.analyzeSCC(taskList, output);
 
                     // Sonuçları yazdır
-                    System.out.println(output.toString());
+                    out.println(output.toString());
                     enterToContinue();
                     break;
 
@@ -311,7 +327,7 @@ public class Task {
                     return; // Menüden çıkış
                 default:
                     clearScreen();
-                    System.out.println("Invalid choice. Please try again.");
+                    out.println("Invalid choice. Please try again.");
                     enterToContinue();
                     break;
             }
@@ -322,12 +338,11 @@ public class Task {
 
     public void deadlineSettingsMenu() {
         int maxTasks = 100;
-        Scanner scanner = new Scanner(System.in);
         int choice;
 
         while (true) {
             printDeadlineSettingsMenu(); // Menü gösterilir
-            choice = getInput(scanner); // Kullanıcı girişini alır
+            choice = getInput(); // Kullanıcı girişini alır
 
             if (choice == -2) {
                 handleInputError(); // Giriş hatası durumunda işlem yapılır
@@ -352,7 +367,7 @@ public class Task {
                     return; // Menüden çıkış
                 default:
                     clearScreen();
-                    System.out.println("Invalid choice. Please try again.");
+                    out.println("Invalid choice. Please try again.");
                     enterToContinue();
                     break;
             }
@@ -363,12 +378,12 @@ public class Task {
 
     public void reminderSystemMenu() {
         int maxTasks = 100;
-        Scanner scanner = new Scanner(System.in);
+
         int choice;
 
         while (true) {
             printReminderSystemMenu(); // Menü gösterilir
-            choice = getInput(scanner); // Kullanıcı girişini alır
+            choice = getInput(); // Kullanıcı girişini alır
 
             if (choice == -2) {
                 handleInputError(); // Giriş hatası durumunda işlem yapılır
@@ -388,7 +403,7 @@ public class Task {
                     return; // Menüden çıkış
                 default:
                     clearScreen();
-                    System.out.println("Invalid choice. Please try again.");
+                    out.println("Invalid choice. Please try again.");
                     enterToContinue();
                     break;
             }
@@ -399,12 +414,12 @@ public class Task {
 
     public void taskPrioritizationMenu() {
         int maxTasks = 100;
-        Scanner scanner = new Scanner(System.in);
+
         int choice;
 
         while (true) {
             printTaskPrioritizationMenu(); // Menü gösterilir
-            choice = getInput(scanner); // Kullanıcı girişini alır
+            choice = getInput(); // Kullanıcı girişini alır
 
             if (choice == -2) {
                 handleInputError(); // Giriş hatası durumunda işlem yapılır
@@ -424,7 +439,7 @@ public class Task {
                     return; // Menüden çıkış
                 default:
                     clearScreen();
-                    System.out.println("Invalid choice. Please try again.");
+                    out.println("Invalid choice. Please try again.");
                     enterToContinue();
                     break;
             }
@@ -435,12 +450,12 @@ public class Task {
 
     public void algorithmsMenu() {
         int maxTasks = 100;
-        Scanner scanner = new Scanner(System.in);
+
         int choice;
 
         while (true) {
             printAlgorithmsMenu(); // Menü gösterilir
-            choice = getInput(scanner); // Kullanıcı girişini alır
+            choice = getInput(); // Kullanıcı girişini alır
 
             if (choice == -2) {
                 handleInputError(); // Giriş hatası durumunda işlem yapılır
@@ -480,7 +495,7 @@ public class Task {
                     return; // Menüden çıkış
                 default:
                     clearScreen();
-                    System.out.println("Invalid choice. Please try again.");
+                    out.println("Invalid choice. Please try again.");
                     enterToContinue();
                     break;
             }
@@ -495,7 +510,7 @@ public class Task {
 
         File file = new File(pathFileUsers);
         if (!file.exists()) {
-            System.out.println("Failed to open user file.");
+            out.println("Failed to open user file.");
             return 0;
         }
 
@@ -515,27 +530,27 @@ public class Task {
 
             User foundUser = searchUserInHashTable(loginUser.getEmail(), loginUser.getPassword());
             if (foundUser != null) {
-                System.out.println("Login successful.");
+                out.println("Login successful.");
                 loggedUser = foundUser; // Başarılı giriş
                 return 1;
             } else {
-                System.out.println("Incorrect email or password.");
+                out.println("Incorrect email or password.");
                 return 0;
             }
         } catch (IOException e) {
-            System.out.println("Error reading user file.");
+            out.println("Error reading user file.");
             return 0;
         }
     }
 
     public boolean loginUserMenu(String pathFileUsers) {
-        Scanner scanner = new Scanner(System.in);
+
         User userInput = new User();
 
-        System.out.print("Enter email: ");
+        out.print("Enter email: ");
         userInput.setEmail(scanner.nextLine());
 
-        System.out.print("Enter password: ");
+        out.print("Enter password: ");
         userInput.setPassword(scanner.nextLine());
 
         // loginUser sonucunu değerlendirip boolean olarak dönüyoruz
@@ -576,7 +591,7 @@ public class Task {
         return null;  // Kullanıcı bulunamadı
     }
 
-    public static int registerUser(User user, String pathFileUser) {
+    public int registerUser(User user, String pathFileUser) {
         File file = new File(pathFileUser);
         int userCount = 0;
         ArrayList<User> users = new ArrayList<>();  // users listesini başlatıyoruz
@@ -601,12 +616,12 @@ public class Task {
 
                     // Kullanıcı zaten var mı kontrol et
                     if (searchUserInHashTable(user.email, user.password) != null) {
-                        System.out.println("User already exists.");
+                        out.println("User already exists.");
                         raf.close();
                         return 0;
                     }
                 } else {
-                    System.out.println("The file is empty, creating a new one.");
+                    out.println("The file is empty, creating a new one.");
                 }
                 raf.close();  // Dosya kapatılmalı
             } else {
@@ -629,44 +644,44 @@ public class Task {
                 users.get(i).writeToFile(raf);  // Kullanıcıyı dosyaya yaz
             }
 
-            System.out.println("User registered successfully: Welcome " + user.name + " " + user.surname);
+            out.println("User registered successfully: Welcome " + user.name + " " + user.surname);
             raf.close();  // Dosyayı kapat
 
             return 1;
         } catch (IOException e) {
             e.printStackTrace();  // Hata mesajını daha ayrıntılı yazdırmak için
-            System.out.println("Error processing user file.");
+            out.println("Error processing user file.");
             return 0;
         }
     }
 
-    public static int registerUserMenu(String pathFileUsers) {
-        Scanner scanner = new Scanner(System.in);
+    public int registerUserMenu(String pathFileUsers) {
+
         User newUser = new User();
 
         // Adı al
-        System.out.print("Enter Name: ");
+        out.print("Enter Name: ");
         newUser.setName(scanner.nextLine());
 
         // Soyadı al
-        System.out.print("Enter Surname: ");
+        out.print("Enter Surname: ");
         newUser.setSurname(scanner.nextLine());
 
         // E-posta al
-        System.out.print("Enter email: ");
+        out.print("Enter email: ");
         newUser.setEmail(scanner.nextLine());
 
         // Şifre al
-        System.out.print("Enter password: ");
+        out.print("Enter password: ");
         newUser.setPassword(scanner.nextLine());
 
         // Kullanıcıyı kaydet
         return registerUser(newUser, pathFileUsers);
     }
 
-    public static int addTask(ArrayList<TaskInfo> taskList, DoubleLinkedList taskDoublyLinkedList, int taskCount, int maxTasks) {
+    public int addTask(ArrayList<TaskInfo> taskList, DoubleLinkedList taskDoublyLinkedList, int taskCount, int maxTasks) {
         if (taskCount >= maxTasks) {
-            System.out.println("Task list is full. Cannot add more tasks.");
+            out.println("Task list is full. Cannot add more tasks.");
             return 0;
         }
 
@@ -676,29 +691,29 @@ public class Task {
         TaskInfo newTask = new TaskInfo();
         newTask.setId(newId); // Yeni görevin ID'sini ayarla
 
-        Scanner scanner = new Scanner(System.in);
+
 
         // Görev bilgilerini alıyoruz
-        System.out.print("Enter Task Name: ");
+        out.print("Enter Task Name: ");
         newTask.setName(scanner.nextLine());
 
-        System.out.print("Enter Task Description: ");
+        out.print("Enter Task Description: ");
         newTask.setDescription(scanner.nextLine());
 
-        System.out.print("Enter Task Category: ");
+        out.print("Enter Task Category: ");
         newTask.setCategory(scanner.nextLine());
 
-        System.out.print("Enter Due Date (YYYY-MM-DD): ");
+        out.print("Enter Due Date (YYYY-MM-DD): ");
         newTask.setDueDate(scanner.nextLine());
 
-        System.out.print("Enter number of dependencies: ");
+        out.print("Enter number of dependencies: ");
         int dependencyCount = scanner.nextInt();
         newTask.setDependencyCount(dependencyCount);
         scanner.nextLine(); // Consume newline left by nextInt()
 
         // Bağımlılıkları alıyoruz
         for (int i = 0; i < newTask.getDependencyCount(); i++) {
-            System.out.print("Enter dependency task ID for dependency " + (i + 1) + ": ");
+            out.print("Enter dependency task ID for dependency " + (i + 1) + ": ");
             newTask.getDependencies()[i] = scanner.nextInt();
             scanner.nextLine(); // Consume newline
         }
@@ -715,13 +730,13 @@ public class Task {
         // Görevleri kaydediyoruz
         saveTasks(taskList);
 
-        System.out.println("Task added and saved successfully!");
+        out.println("Task added and saved successfully!");
         return 1;
     }
 
 
 
-    public static void saveTasks(ArrayList<TaskInfo> taskList) {
+    public void saveTasks(ArrayList<TaskInfo> taskList) {
         try (DataOutputStream dos = new DataOutputStream(new FileOutputStream("tasks.bin"))) {
             dos.writeInt(taskList.size()); // Görev sayısını yaz
             for (TaskInfo task : taskList) {
@@ -736,33 +751,33 @@ public class Task {
                 }
             }
         } catch (IOException e) {
-            System.out.println("Error saving tasks: " + e.getMessage());
+            out.println("Error saving tasks: " + e.getMessage());
         }
     }
 
 
-    public static int loadTasks(ArrayList<TaskInfo> taskList) {
+    public int loadTasks(ArrayList<TaskInfo> taskList) {
         File file = new File("tasks.bin");
         if (!file.exists()) {
-            System.out.println("No previous tasks found.");
+            out.println("No previous tasks found.");
             return 0;
         }
 
         try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
             int taskCount = raf.readInt();  // Dosyadan görev sayısını oku
-            System.out.println("Task count read from file: " + taskCount);  // Log ekledik
+            out.println("Task count read from file: " + taskCount);  // Log ekledik
 
             for (int i = 0; i < taskCount; i++) {
                 TaskInfo task = new TaskInfo();
                 task.readFromFile(raf);  // Dosyadan her bir görevi oku
-                System.out.println("Task loaded: ID=" + task.getId() + ", Name=" + task.getName());  // Log ekledik
+                out.println("Task loaded: ID=" + task.getId() + ", Name=" + task.getName());  // Log ekledik
                 taskList.add(task);  // Görevi listeye ekle
             }
 
-            System.out.println(taskCount + " tasks loaded successfully!");
+            out.println(taskCount + " tasks loaded successfully!");
             return taskCount;
         } catch (IOException e) {
-            System.out.println("Error reading tasks file: " + e.getMessage());
+            out.println("Error reading tasks file: " + e.getMessage());
             return 0;
         }
     }
@@ -774,42 +789,42 @@ public class Task {
 
     public void navigateTaskList(DoubleLinkedList taskList) {
         if (taskList.head == null) {
-            System.out.println("No tasks available for navigation.");
+            out.println("No tasks available for navigation.");
             return;
         }
 
-        Scanner scanner = new Scanner(System.in);
+
         TaskNode current = taskList.head; // Listenin başından başlıyoruz
         int choice;
 
         while (true) {
-            System.out.println("\nCurrent Task:");
-            System.out.println("ID: " + current.task.getId());
-            System.out.println("Name: " + current.task.getName());
-            System.out.println("Description: " + current.task.getDescription());
-            System.out.println("Category: " + current.task.getCategory());
-            System.out.println("Due Date: " + current.task.getDueDate());
+            out.println("\nCurrent Task:");
+            out.println("ID: " + current.task.getId());
+            out.println("Name: " + current.task.getName());
+            out.println("Description: " + current.task.getDescription());
+            out.println("Category: " + current.task.getCategory());
+            out.println("Due Date: " + current.task.getDueDate());
 
-            System.out.println("\n1. Next\n2. Previous\n3. Exit");
-            System.out.print("Choose an option: ");
+            out.println("\n1. Next\n2. Previous\n3. Exit");
+            out.print("Choose an option: ");
             choice = scanner.nextInt();
 
             if (choice == 1) { // Bir sonraki göreve git
                 if (current.next != null) {
                     current = current.next;
                 } else {
-                    System.out.println("This is the last task.");
+                    out.println("This is the last task.");
                 }
             } else if (choice == 2) { // Bir önceki göreve git
                 if (current.prev != null) {
                     current = current.prev;
                 } else {
-                    System.out.println("This is the first task.");
+                    out.println("This is the first task.");
                 }
             } else if (choice == 3) { // Gezintiden çık
                 break;
             } else { // Geçersiz seçim
-                System.out.println("Invalid choice. Try again.");
+                out.println("Invalid choice. Try again.");
             }
         }
     }
@@ -829,23 +844,23 @@ public class Task {
         tail = newNode;
     }
 
-    public static void viewTask(ArrayList<TaskInfo> taskList) {
+    public void viewTask(ArrayList<TaskInfo> taskList) {
         if (taskList.isEmpty()) {
-            System.out.println("No tasks found. The task list is empty.");
+            out.println("No tasks found. The task list is empty.");
             enterToContinue();
             return;
         }
 
-        System.out.println("\n--- List of Tasks ---");
+        out.println("\n--- List of Tasks ---");
 
         // taskList içindeki tüm görevleri sırasıyla yazdırıyoruz
         for (TaskInfo task : taskList) {
-            System.out.println("ID: " + task.getId());
-            System.out.println("Name: " + task.getName());
-            System.out.println("Description: " + task.getDescription());
-            System.out.println("Category: " + task.getCategory());
-            System.out.println("Due Date: " + task.getDueDate());
-            System.out.println("---------------------------");
+            out.println("ID: " + task.getId());
+            out.println("Name: " + task.getName());
+            out.println("Description: " + task.getDescription());
+            out.println("Category: " + task.getCategory());
+            out.println("Due Date: " + task.getDueDate());
+            out.println("---------------------------");
         }
 
         enterToContinue();  // Kullanıcıya devam etmesi için bekletme
@@ -865,44 +880,44 @@ public class Task {
         return maxId + 1;
     }
 
-    public static void categorizeTask(ArrayList<TaskInfo> taskList) {
-        Scanner scanner = new Scanner(System.in);
+    public void categorizeTask(ArrayList<TaskInfo> taskList) {
+
 
         // Kategoriyi kullanıcıdan al
-        System.out.print("Enter category to filter: ");
+        out.print("Enter category to filter: ");
         String category = scanner.nextLine().trim();
 
         boolean found = false;
 
-        System.out.println("\n--- Tasks in Category '" + category + "' ---");
+        out.println("\n--- Tasks in Category '" + category + "' ---");
 
         // taskList içindeki görevleri kontrol et
         for (TaskInfo task : taskList) {
             if (task.getCategory().equalsIgnoreCase(category)) {
-                System.out.println("ID: " + task.getId());
-                System.out.println("Name: " + task.getName());
-                System.out.println("Description: " + task.getDescription());
-                System.out.println("Due Date: " + task.getDueDate());
-                System.out.println("---------------------------");
+                out.println("ID: " + task.getId());
+                out.println("Name: " + task.getName());
+                out.println("Description: " + task.getDescription());
+                out.println("Due Date: " + task.getDueDate());
+                out.println("---------------------------");
                 found = true;
             }
         }
 
         if (!found) {
-            System.out.println("No tasks found in this category.");
+            out.println("No tasks found in this category.");
         }
 
         enterToContinue(); // Kullanıcıya devam etmek için bekleme ekranı
     }
 
-    public static void printDependencies(ArrayList<TaskInfo> taskList, int startTaskId) {
+    public void printDependencies(ArrayList<TaskInfo> taskList, int startTaskId) {
         boolean[] visited = new boolean[taskList.size()]; // Ziyaret edilen görevler için dizi
 
-        System.out.println("Dependencies for Task " + startTaskId + ":");
+        out.println("Dependencies for Task " + startTaskId + ":");
         printDependenciesUtil(taskList, startTaskId, visited); // Yardımcı fonksiyonu çağır
     }
 
-    private static void printDependenciesUtil(ArrayList<TaskInfo> taskList, int taskId, boolean[] visited) {
+    private void printDependenciesUtil(ArrayList<TaskInfo> taskList, int taskId, boolean[] visited) {
         if (visited[taskId - 1]) {
             return; // Görev zaten ziyaret edildiyse döngüyü önlemek için dur
         }
@@ -914,7 +929,7 @@ public class Task {
             if (task.getId() == taskId) {
                 for (int depId : task.getDependencies()) {
                     if (depId != 0) { // Sıfır olmayan bağımlılıkları yazdır
-                        System.out.println("Task " + taskId + " depends on Task " + depId);
+                        out.println("Task " + taskId + " depends on Task " + depId);
                         printDependenciesUtil(taskList, depId, visited); // Bağımlılıkları yinelemeli olarak yazdır
                     }
                 }
@@ -965,47 +980,47 @@ public class Task {
         return false; // Pattern not found
     }
 
-    public static void searchTasksByKeyword(ArrayList<TaskInfo> taskList) {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter the keyword to search in task descriptions: ");
+    public void searchTasksByKeyword(ArrayList<TaskInfo> taskList) {
+
+        out.print("Enter the keyword to search in task descriptions: ");
         String keyword = scanner.nextLine();
 
         boolean found = false;
 
-        System.out.println("\nTasks containing the keyword '" + keyword + "' in their descriptions:");
-        System.out.println("----------------------------------------------------");
+        out.println("\nTasks containing the keyword '" + keyword + "' in their descriptions:");
+        out.println("----------------------------------------------------");
 
         for (TaskInfo task : taskList) {
             if (KMPsearch(task.getDescription(), keyword)) {
-                System.out.println("ID: " + task.getId());
-                System.out.println("Name: " + task.getName());
-                System.out.println("Description: " + task.getDescription());
-                System.out.println("Category: " + task.getCategory());
-                System.out.println("Due Date: " + task.getDueDate());
-                System.out.println("----------------------------------------------------");
+                out.println("ID: " + task.getId());
+                out.println("Name: " + task.getName());
+                out.println("Description: " + task.getDescription());
+                out.println("Category: " + task.getCategory());
+                out.println("Due Date: " + task.getDueDate());
+                out.println("----------------------------------------------------");
                 found = true;
             }
         }
 
         if (!found) {
-            System.out.println("No tasks found with the keyword '" + keyword + "'.");
+            out.println("No tasks found with the keyword '" + keyword + "'.");
         }
     }
 
 
     public void assign_deadline() {
-        Scanner scanner = new Scanner(System.in);
 
-        System.out.print("Enter Task Name: ");
+
+        out.print("Enter Task Name: ");
         String taskName = scanner.nextLine();
 
-        System.out.print("Enter Deadline (day month year): ");
+        out.print("Enter Deadline (day month year): ");
         int day = scanner.nextInt();
         int month = scanner.nextInt();
         int year = scanner.nextInt();
 
         if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900) {
-            System.out.println("Invalid date! Please enter a valid date.");
+            out.println("Invalid date! Please enter a valid date.");
             return;
         }
 
@@ -1016,20 +1031,20 @@ public class Task {
         // Dosyaya kaydetme işlemi
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("deadlines.bin", true))) {
             oos.writeObject(assignment);
-            System.out.println("Deadline assigned and saved successfully!");
+            out.println("Deadline assigned and saved successfully!");
         } catch (IOException e) {
-            System.out.println("Error saving deadline: " + e.getMessage());
+            out.println("Error saving deadline: " + e.getMessage());
         }
     }
 
     public int viewDeadlines() {
         if (deadlineHeap.isEmpty()) {
-            System.out.println("No deadlines to display.");
+            out.println("No deadlines to display.");
             return -1;
         }
 
-        System.out.println("\n--- Upcoming Deadlines (Sorted by Date) ---");
-        System.out.println("-------------------------------------------");
+        out.println("\n--- Upcoming Deadlines (Sorted by Date) ---");
+        out.println("-------------------------------------------");
 
         // Geçici heap oluşturmak için mevcut heap'i kopyalıyoruz
         PriorityQueue<Assignment> tempHeap = new PriorityQueue<>(deadlineHeap);
@@ -1037,7 +1052,7 @@ public class Task {
         int taskCount = 0;
         while (!tempHeap.isEmpty()) {
             Assignment deadline = tempHeap.poll(); // Min elemanı çıkar
-            System.out.printf("%d. Task: %s - Deadline: %02d/%02d/%04d\n",
+            out.printf("%d. Task: %s - Deadline: %02d/%02d/%04d\n",
                     ++taskCount,
                     deadline.getName(),
                     deadline.getDay(),
@@ -1046,10 +1061,10 @@ public class Task {
         }
 
         if (taskCount == 0) {
-            System.out.println("No deadlines to display.");
+            out.println("No deadlines to display.");
         }
 
-        System.out.println("-------------------------------------------");
+        out.println("-------------------------------------------");
         enterToContinue(); // Devam etmek için kullanıcıdan girdi al
         return 1;
     }   
