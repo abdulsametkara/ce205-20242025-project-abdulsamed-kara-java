@@ -91,7 +91,15 @@ public class TaskTest {
       user2.setSurname("Smith");
       user2.setEmail("jane.smith@example.com");
       user2.setPassword("securepassword2");
-      user2.writeToFile(raf); // Kullanıcıyı dosyaya yaz
+      user2.writeToFile(raf);// Kullanıcıyı dosyaya yaz
+
+      User user3 = new User();
+      user3.setId(3);
+      user3.setName("aa");
+      user3.setSurname("aa");
+      user3.setEmail("aa");
+      user3.setPassword("aa");
+      user3.writeToFile(raf);
     }
   }
 
@@ -1182,7 +1190,109 @@ public void testUserOptionsMenu_InvalidChoice() {
     assertFalse(output.contains("Task ID:"));
   }
 
- 
+  @Test
+  public void testAlgorithmsMenuOverflow() {
+    // Arrange
+    String simulatedInput = "1\nt\nt\nt\nt\n\n2\nt\nt\n\n3\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  /*@Test
+  public void testAlgorithmsMenuProbing() {
+    // Arrange
+    String simulatedInput = "2\naa\naa\naa\naa\n\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }*/
+
+  @Test
+  public void testAlgorithmsMenuQuadratic() {
+    // Arrange
+    String simulatedInput = "3\n1\nk\nk\nk\nk\n\n2\nk\nk\n\n3\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  @Test
+  public void testAlgorithmsMenuDoubleHashing() {
+    // Arrange
+    String simulatedInput = "4\n1\nn\nn\nn\nn\n\n2\nn\nn\n\n3\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  @Test
+  public void testAlgorithmsMenuLinearQuotient() {
+    // Arrange
+    String simulatedInput = "6\n1\nz\nz\nz\nz\n\n2\nz\nz\n\n3\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  @Test
+  public void testAlgorithmsMenuBrentsMethod() {
+    // Arrange
+    String simulatedInput = "7\n1\ng\ng\ng\ng\n\n2\ng\ng\n\n3\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+
 
 
 }
