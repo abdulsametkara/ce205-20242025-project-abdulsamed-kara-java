@@ -4,9 +4,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
-
-
-
+import java.util.concurrent.TimeUnit;
 
 
 public class Task {
@@ -15,9 +13,13 @@ public class Task {
     public Scanner scanner;
     /** PrintStream object for output. */
     public PrintStream out;
+    private NotificationManager notificationManager; // NotificationManager nesnesi eklendi
+
     public Task(Scanner scanner, PrintStream out) {
         this.scanner = scanner;
         this.out = out;
+        this.notificationManager = new NotificationManager(scanner, out); // Nesne başlatıldı
+
     }
     public boolean isTestMode = false;
 
@@ -32,6 +34,8 @@ public class Task {
     private static TaskNode tail = null;
     private static XORLinkedList xorLinkedList = new XORLinkedList();
     private PriorityQueue<Assignment> deadlineHeap = new PriorityQueue<>();
+
+
 
 
 
@@ -393,14 +397,13 @@ public class Task {
 
             switch (choice) {
                 case 1:
-                    //setReminders
+                    setReminders();
                     break;
                 case 2:
-                    //notificationSettings
-                    enterToContinue();
+                    notificationManager.notificationSettings();
                     break;
                 case 3:
-                    return; // Menüden çıkış
+                    return;
                 default:
                     clearScreen();
                     out.println("Invalid choice. Please try again.");
@@ -429,10 +432,10 @@ public class Task {
 
             switch (choice) {
                 case 1:
-                    //markTaskImportance
+                    markTaskImportance(taskList);
                     break;
                 case 2:
-                    //
+                    importanceOrdering(taskList);
                     enterToContinue();
                     break;
                 case 3:
@@ -468,7 +471,7 @@ public class Task {
                     //progressiveOverflowDemo
                     break;
                 case 2:
-                    //linearProbingDemo
+                    linearProbingDemo();
                     enterToContinue();
                     break;
                 case 3:
@@ -560,10 +563,11 @@ public class Task {
     public static int hashFunction(String email) {
         int hash = 0;
         for (int i = 0; i < email.length(); i++) {
-            hash = (hash + email.charAt(i)) % TABLE_SIZE;  // Modül ile hash değeri hesaplanır
+            hash = (hash + email.charAt(i)) % TABLE_SIZE;
         }
         return hash;
     }
+
 
     public static void insertUserToHashTable(User user) {
         int index = hashFunction(user.getEmail());
@@ -576,20 +580,38 @@ public class Task {
         hashTable[index].add(user); // Kullanıcıyı ilgili index'teki listeye ekliyoruz
     }
 
-    public static User searchUserInHashTable(String email, String password) {
+    /**
+     * @brief Searches for a user in the hash table using linear probing.
+     *
+     * @param email The email of the user.
+     * @param password The password of the user.
+     * @return User The user object if found, otherwise null.
+     */
+    public User searchUserInHashTable(String email, String password) {
         int index = hashFunction(email);
-        LinkedList<User> userList = hashTable[index];
+        int originalIndex = index;
 
-        // Bağlı liste üzerinde arama yapıyoruz
-        if (userList != null) {
-            for (User user : userList) {
+        for (int i = 0; i < TABLE_SIZE; i++) {
+            LinkedList<User> bucket = hashTable[index];
+
+            // Kullanıcıyı arama
+            for (User user : bucket) {
                 if (user.getEmail().equals(email) && user.getPassword().equals(password)) {
-                    return user;  // Kullanıcı bulundu
+                    return user; // Kullanıcı bulundu
                 }
             }
+
+            // Bir sonraki indexe geç
+            index = (index + 1) % TABLE_SIZE;
+
+            if (index == originalIndex) {
+                break;
+            }
         }
-        return null;  // Kullanıcı bulunamadı
+
+        return null; // Kullanıcı bulunamadı
     }
+
 
     public int registerUser(User user, String pathFileUser) {
         File file = new File(pathFileUser);
@@ -746,6 +768,7 @@ public class Task {
                 dos.writeUTF(task.getCategory());          // Category
                 dos.writeUTF(task.getDueDate());           // Due Date
                 dos.writeInt(task.getDependencyCount());   // Dependency Count
+                dos.writeInt(task.getImportanceId());      // Importance ID (Yeni Eklendi)
                 for (int dep : task.getDependencies()) {
                     dos.writeInt(dep);                     // Dependencies
                 }
@@ -754,6 +777,7 @@ public class Task {
             out.println("Error saving tasks: " + e.getMessage());
         }
     }
+
 
 
     public int loadTasks(ArrayList<TaskInfo> taskList) {
@@ -1067,6 +1091,266 @@ public class Task {
         out.println("-------------------------------------------");
         enterToContinue(); // Devam etmek için kullanıcıdan girdi al
         return 1;
-    }   
+    }
+
+
+    /**
+     * @brief Sets a countdown reminder based on user input.
+     *
+     * This method asks the user to input a duration in days, hours, minutes, and seconds.
+     * It then starts a countdown and displays the remaining time until the reminder triggers.
+     *
+     * @return Returns true if the reminder was successfully set, otherwise false.
+     */
+    public boolean setReminders() {
+        clearScreen();
+
+        int days, hours, minutes, seconds;
+
+        out.println("Enter the reminder duration:");
+
+        out.print("Days: ");
+        days = getInput();
+
+        out.print("Hours: ");
+        hours = getInput();
+
+        out.print("Minutes: ");
+        minutes = getInput();
+
+        out.print("Seconds: ");
+        seconds = getInput();
+
+        // Toplam süreyi saniyeye dönüştür
+        int totalSeconds = seconds + minutes * 60 + hours * 3600 + days * 86400;
+
+        if (totalSeconds <= 0) {
+            out.println("Invalid duration. Please enter a positive duration.");
+            enterToContinue();
+            return false;
+        }
+
+        out.printf("Setting reminder for %d seconds...\n", totalSeconds);
+
+        // Geri sayım döngüsü
+        try {
+            for (int remaining = totalSeconds; remaining > 0; --remaining) {
+                clearScreen();
+                out.printf("Time remaining: %02d:%02d:%02d:%02d\n",
+                        remaining / 86400,           // Days
+                        (remaining % 86400) / 3600,  // Hours
+                        (remaining % 3600) / 60,     // Minutes
+                        remaining % 60);            // Seconds
+
+                platformSleep(1); // 1 saniye bekle
+            }
+        } catch (InterruptedException e) {
+            out.println("Reminder interrupted: " + e.getMessage());
+            return false;
+        }
+
+        out.println("Time's up! Reminder triggered.");
+        enterToContinue();
+        return true;
+    }
+
+    /**
+     * @brief Platform-independent sleep function.
+     *
+     * This method pauses the program execution for the given number of seconds.
+     *
+     * @param seconds The number of seconds to sleep.
+     */
+    private void platformSleep(int seconds) throws InterruptedException {
+        TimeUnit.SECONDS.sleep(seconds);
+    }
+
+    public void markTaskImportance(ArrayList<TaskInfo> taskList) {
+        clearScreen();
+
+        if (taskList.isEmpty()) {
+            out.println("No tasks available. Please add tasks first.");
+            enterToContinue();
+            return;
+        }
+
+        out.println("Tasks loaded:");
+        for (TaskInfo task : taskList) {
+            String importanceStr = switch (task.getImportanceId()) {
+                case 1 -> "Low";
+                case 2 -> "Medium";
+                case 3 -> "High";
+                default -> "Unmarked";
+            };
+            out.printf("ID: %d, Name: %s, Importance: %s%n",
+                    task.getId(), task.getName(), importanceStr);
+        }
+
+        // Kullanıcıdan Task Adı Al
+        out.print("Enter the name of the task to mark importance: ");
+        String taskName = scanner.nextLine();
+
+        TaskInfo selectedTask = findTaskByName(taskList, taskName);
+
+        if (selectedTask == null) {
+            out.println("Task not found! Please enter a valid task name.");
+            enterToContinue();
+            return;
+        }
+
+        // Önem Derecesi Al
+        int importanceId;
+        while (true) {
+            out.print("Enter the importance ID (1: Low, 2: Medium, 3: High): ");
+            if (scanner.hasNextInt()) {
+                importanceId = scanner.nextInt();
+                scanner.nextLine(); // Satır sonunu temizle
+                if (importanceId >= 1 && importanceId <= 3) {
+                    break;
+                }
+            }
+            out.println("Invalid importance ID! Please enter 1, 2, or 3.");
+            scanner.nextLine(); // Geçersiz girişi temizle
+        }
+
+        // Önem Derecesini Güncelle
+        selectedTask.setImportanceId(importanceId);
+        saveTasks(taskList);
+
+        out.printf("Importance level of '%s' marked successfully as %d.%n",
+                selectedTask.getName(), importanceId);
+        enterToContinue();
+    }
+
+
+    private TaskInfo findTaskByName(ArrayList<TaskInfo> taskList, String name) {
+        for (TaskInfo task : taskList) {
+            if (task.getName().equalsIgnoreCase(name)) {
+                return task;
+            }
+        }
+        return null; // Task bulunamadı
+    }
+
+    /**
+     * @brief Displays tasks ordered by their importance level.
+     *
+     * This function sorts the task list by importance levels (High, Medium, Low) and displays them
+     * in a tabular format for better readability.
+     *
+     * @param taskList The list of tasks to be displayed in order of importance.
+     */
+    public void importanceOrdering(ArrayList<TaskInfo> taskList) {
+        clearScreen();
+
+        if (taskList.isEmpty()) {
+            out.println("No tasks available to display.");
+            enterToContinue();
+            return;
+        }
+
+        // Görevleri Önem Derecesine Göre Sırala (High → Medium → Low)
+        taskList.sort((task1, task2) -> Integer.compare(task1.getImportanceId(), task2.getImportanceId()));
+
+        out.println("┌──────────┬────────────────────┬──────────────────────┬────────────┬─────────────┐");
+        out.println("│  ID      │ Task Name          │ Description          │ Category   │ Importance  │");
+        out.println("├──────────┼────────────────────┼──────────────────────┼────────────┼─────────────┤");
+
+        for (TaskInfo task : taskList) {
+            String importanceStr = switch (task.getImportanceId()) {
+                case 1 -> "Low";
+                case 2 -> "Medium";
+                case 3 -> "High";
+                default -> "Unmarked";
+            };
+
+            out.printf("│ %-8d │ %-18s │ %-20s │ %-10s │ %-11s │%n",
+                    task.getId(),
+                    task.getName(),
+                    task.getDescription(),
+                    task.getCategory(),
+                    importanceStr);
+        }
+
+        out.println("└──────────┴────────────────────┴──────────────────────┴────────────┴─────────────┘");
+        enterToContinue();
+    }
+
+
+    /**
+     * @brief Inserts a user into the hash table using linear probing.
+     *
+     * @param user The user to be added to the hash table.
+     */
+    public void insertUserToHashTableWithLinearProbing(User user) {
+        int index = hashFunction(user.getEmail());
+        int originalIndex = index;
+
+        out.println("Inserting user with email: " + user.getEmail());
+
+        // Linear probing to find an empty spot or existing user
+        for (int i = 0; i < TABLE_SIZE; i++) {
+            LinkedList<User> bucket = hashTable[index];
+
+            // Kullanıcı zaten mevcut mu kontrol et
+            for (User existingUser : bucket) {
+                if (existingUser.getEmail().equals(user.getEmail())) {
+                    out.println("User already exists at index " + index);
+                    return;
+                }
+            }
+
+            // Eğer bucket boşsa kullanıcıyı ekle
+            if (bucket.isEmpty()) {
+                bucket.add(user);
+                out.println("User added at index " + index);
+                return;
+            }
+
+            // Bir sonraki indexe geç
+            index = (index + 1) % TABLE_SIZE;
+
+            if (index == originalIndex) {
+                out.println("Hash table is full, cannot add more users.");
+                return;
+            }
+        }
+    }
+
+
+
+
+    /**
+     * @brief Demonstrates the usage of linear probing for user hash table management.
+     */
+    public void linearProbingDemo() {
+        out.println("Linear Probing is active for user hash table management.");
+
+        Scanner scanner = new Scanner(System.in);
+
+        User user = new User();
+
+        out.print("Name: ");
+        user.setName(scanner.nextLine());
+
+        out.print("Surname: ");
+        user.setSurname(scanner.nextLine());
+
+        out.print("Email: ");
+        user.setEmail(scanner.nextLine());
+
+        out.print("Password: ");
+        user.setPassword(scanner.nextLine());
+
+        insertUserToHashTableWithLinearProbing(user);
+
+        out.println("User insertion complete.");
+        enterToContinue();
+    }
+
+
+
+
+
 
 }

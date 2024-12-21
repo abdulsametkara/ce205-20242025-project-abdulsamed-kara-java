@@ -10,6 +10,8 @@ public class TaskInfo {
     private String dueDate;
     private int dependencyCount;
     private int[] dependencies = new int[10];  // Maksimum 10 bağımlılık
+    private int importanceId = 0; // Varsayılan değer: 0 (Unmarked)
+
 
     // Getter ve Setter metodları
     public int getId() { return id; }
@@ -57,5 +59,20 @@ public class TaskInfo {
             this.dependencies[i] = raf.readInt();  // Bağımlılıkların ID'leri
         }
     }
+
+    // Importance Getter
+    public int getImportanceId() {
+        return importanceId;
+    }
+
+    // Importance Setter
+    public void setImportanceId(int importanceId) {
+        if (importanceId >= 1 && importanceId <= 3) {
+            this.importanceId = importanceId;
+        } else {
+            throw new IllegalArgumentException("Invalid importance ID! Must be 1 (Low), 2 (Medium), or 3 (High).");
+        }
+    }
+
 
 }
