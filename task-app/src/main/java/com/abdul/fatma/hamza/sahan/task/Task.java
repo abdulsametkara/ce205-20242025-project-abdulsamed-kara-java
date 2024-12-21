@@ -34,6 +34,11 @@ public class Task {
     private static TaskNode tail = null;
     private static XORLinkedList xorLinkedList = new XORLinkedList();
     private PriorityQueue<Assignment> deadlineHeap = new PriorityQueue<>();
+    private static final int OVERFLOW_SIZE = 20;
+    private static ArrayList<User> overflowArea = new ArrayList<>(OVERFLOW_SIZE);
+
+
+
 
 
 
@@ -468,18 +473,22 @@ public class Task {
 
             switch (choice) {
                 case 1:
-                    //progressiveOverflowDemo
+                    progressiveOverflowDemo();
+                    enterToContinue();
                     break;
                 case 2:
                     linearProbingDemo();
                     enterToContinue();
                     break;
                 case 3:
-                    //quadraticProbingDemo
+                    clearScreen();
+                    quadraticProbingDemo();
                     enterToContinue();
                     break;
+
                 case 4:
-                    //doubleHashingDemo
+                    clearScreen();
+                    doubleHashingDemo();
                     enterToContinue();
                     break;
                 case 5:
@@ -487,11 +496,13 @@ public class Task {
                     enterToContinue();
                     break;
                 case 6:
-                    //linearQuotientDemo
+                    clearScreen();
+                    linearQuotientDemo();
                     enterToContinue();
                     break;
                 case 7:
-                    //brentsMethodDemo
+                    clearScreen();
+                    brentsMethodDemo();
                     enterToContinue();
                     break;
                 case 8:
@@ -507,10 +518,17 @@ public class Task {
 
     }
 
+    /**
+     * @brief Logs in a user using Huffman decoding for email and password.
+     *
+     * This method checks the user's credentials against stored users in the file.
+     * It decodes the email and password using Huffman decoding before validation.
+     *
+     * @param loginUser The User object attempting to log in.
+     * @param pathFileUsers The path to the user database file.
+     * @return int Returns 1 if login is successful, otherwise 0.
+     */
     public int loginUser(User loginUser, String pathFileUsers) {
-
-        User loggedUser; // Sınıf genelinde erişilebilecek bir değişken
-
         File file = new File(pathFileUsers);
         if (!file.exists()) {
             out.println("Failed to open user file.");
@@ -519,32 +537,53 @@ public class Task {
 
         try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
             int userCount = raf.readInt();
-            User[] users = new User[userCount];
+            ArrayList<User> users = new ArrayList<>();
 
-            for (int i = 0; i < userCount; ++i) {
-                users[i] = new User();
-                users[i].readFromFile(raf); // Kullanıcıyı dosyadan oku
+            for (int i = 0; i < userCount; i++) {
+                User tempUser = new User();
+                tempUser.readFromFile(raf);
+                users.add(tempUser);
             }
 
-            // Hash tablosunu doldur
-            for (int i = 0; i < userCount; ++i) {
-                insertUserToHashTable(users[i]); // Hash tablosuna kullanıcıyı ekle
+            for (User user : users) {
+                insertUserToHashTable(user);
             }
 
-            User foundUser = searchUserInHashTable(loginUser.getEmail(), loginUser.getPassword());
-            if (foundUser != null) {
-                out.println("Login successful.");
-                loggedUser = foundUser; // Başarılı giriş
-                return 1;
-            } else {
-                out.println("Incorrect email or password.");
-                return 0;
+            // Huffman dosyasından kontrol
+            try (DataInputStream huffDis = new DataInputStream(new FileInputStream("user.huf"))) {
+                while (huffDis.available() > 0) {
+                    int id = huffDis.readInt();
+                    int emailLength = huffDis.readInt();
+                    byte[] emailBytes = new byte[emailLength];
+                    huffDis.readFully(emailBytes);
+                    String decodedEmail = HuffmanCoding.huffmanDecode(new String(emailBytes));
+
+                    int passwordLength = huffDis.readInt();
+                    byte[] passwordBytes = new byte[passwordLength];
+                    huffDis.readFully(passwordBytes);
+                    String decodedPassword = HuffmanCoding.huffmanDecode(new String(passwordBytes));
+
+                    if (decodedEmail.equals(loginUser.getEmail()) && decodedPassword.equals(loginUser.getPassword())) {
+                        out.println("╔══════════════════════════════════════════════════╗");
+                        out.println("║ SUCCESS: Login successful!                      ║");
+                        out.println("╚══════════════════════════════════════════════════╝");
+                        return 1;
+                    }
+                }
             }
+
+            out.println("╔══════════════════════════════════════════════════╗");
+            out.println("║ ERROR: Incorrect email or password.             ║");
+            out.println("╚══════════════════════════════════════════════════╝");
+
+            return 0;
+
         } catch (IOException e) {
             out.println("Error reading user file.");
             return 0;
         }
     }
+
 
     public boolean loginUserMenu(String pathFileUsers) {
 
@@ -563,7 +602,7 @@ public class Task {
     public static int hashFunction(String email) {
         int hash = 0;
         for (int i = 0; i < email.length(); i++) {
-            hash = (hash + email.charAt(i)) % TABLE_SIZE;
+            hash = (hash + email.charAt(i)) % TABLE_SIZE;  // Modül ile hash değeri hesaplanır
         }
         return hash;
     }
@@ -587,95 +626,106 @@ public class Task {
      * @param password The password of the user.
      * @return User The user object if found, otherwise null.
      */
-    public User searchUserInHashTable(String email, String password) {
+    public static User searchUserInHashTable(String email, String password) {
         int index = hashFunction(email);
-        int originalIndex = index;
+        LinkedList<User> userList = hashTable[index];
 
-        for (int i = 0; i < TABLE_SIZE; i++) {
-            LinkedList<User> bucket = hashTable[index];
-
-            // Kullanıcıyı arama
-            for (User user : bucket) {
+        // Bağlı liste üzerinde arama yapıyoruz
+        if (userList != null) {
+            for (User user : userList) {
                 if (user.getEmail().equals(email) && user.getPassword().equals(password)) {
-                    return user; // Kullanıcı bulundu
+                    return user;  // Kullanıcı bulundu
                 }
             }
-
-            // Bir sonraki indexe geç
-            index = (index + 1) % TABLE_SIZE;
-
-            if (index == originalIndex) {
-                break;
-            }
         }
-
-        return null; // Kullanıcı bulunamadı
+        return null;  // Kullanıcı bulunamadı
     }
 
-
+    /**
+     * @brief Registers a new user with Huffman encoding for email and password.
+     *
+     * This method registers a new user by checking if the user already exists,
+     * encoding their email and password using Huffman coding, and saving them
+     * into a binary file (`users.bin`) and a Huffman-encoded file (`user.huf`).
+     *
+     * @param user The User object containing the user's details.
+     * @param pathFileUser The path to the user database file.
+     * @return int Returns 1 if registration is successful, otherwise 0.
+     */
     public int registerUser(User user, String pathFileUser) {
         File file = new File(pathFileUser);
         int userCount = 0;
-        ArrayList<User> users = new ArrayList<>();  // users listesini başlatıyoruz
+        ArrayList<User> users = new ArrayList<>();
 
         try {
             if (file.exists()) {
                 RandomAccessFile raf = new RandomAccessFile(file, "rw");
-                if (raf.length() > 0) {  // Dosyanın boyutunun sıfırdan büyük olup olmadığını kontrol ediyoruz
-                    userCount = raf.readInt();  // Kullanıcı sayısını oku
+                if (raf.length() > 0) {
+                    userCount = raf.readInt();
 
-                    // Kullanıcıları dosyadan oku ve listeye ekle
                     for (int i = 0; i < userCount; i++) {
                         User tempUser = new User();
-                        tempUser.readFromFile(raf);  // Kullanıcıyı dosyadan oku
-                        users.add(tempUser);  // Kullanıcıyı listeye ekle
+                        tempUser.readFromFile(raf);
+                        users.add(tempUser);
                     }
 
-                    // Hash tablosunu doldur
-                    for (int i = 0; i < userCount; ++i) {
-                        insertUserToHashTable(users.get(i));  // Kullanıcıyı hash tablosuna ekle
+                    for (User u : users) {
+                        insertUserToHashTable(u);
                     }
 
-                    // Kullanıcı zaten var mı kontrol et
-                    if (searchUserInHashTable(user.email, user.password) != null) {
+                    if (searchUserInHashTable(user.getEmail(), user.getPassword()) != null) {
                         out.println("User already exists.");
                         raf.close();
                         return 0;
                     }
-                } else {
-                    out.println("The file is empty, creating a new one.");
                 }
-                raf.close();  // Dosya kapatılmalı
+                raf.close();
             } else {
-                file.createNewFile();  // Dosya yoksa yeni dosya oluştur
+                file.createNewFile();
             }
 
-            // Yeni kullanıcıyı dosyaya ekle
-            user.id = userCount + 1;  // Yeni kullanıcı ID'si
-            insertUserToHashTable(user);  // Hash tablosuna ekle
+            // Yeni kullanıcı ekleniyor
+            user.setId(userCount + 1);
+            insertUserToHashTable(user);
 
-            // Kullanıcıyı dosyaya ekleyelim
-            userCount++;
+            // Huffman Kodlama
+            String encodedEmail = HuffmanCoding.huffmanEncode(user.getEmail());
+            String encodedPassword = HuffmanCoding.huffmanEncode(user.getPassword());
+
+            // Huffman dosyasına yazma
+            try (DataOutputStream huffDos = new DataOutputStream(new FileOutputStream("user.huf", true))) {
+                huffDos.writeInt(user.getId());
+                huffDos.writeInt(encodedEmail.length());
+                huffDos.writeBytes(encodedEmail);
+                huffDos.writeInt(encodedPassword.length());
+                huffDos.writeBytes(encodedPassword);
+            }
+
             users.add(user);
+            userCount++;
 
-            // Dosyayı açıp kullanıcıları yazalım
-            RandomAccessFile raf = new RandomAccessFile(file, "rw");
-            raf.seek(0);  // Dosyanın başına git
-            raf.writeInt(userCount);  // Kullanıcı sayısını dosyaya yaz
-            for (int i = 0; i < userCount; i++) {
-                users.get(i).writeToFile(raf);  // Kullanıcıyı dosyaya yaz
+            try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
+                raf.seek(0);
+                raf.writeInt(userCount);
+                for (User u : users) {
+                    u.writeToFile(raf);
+                }
             }
 
-            out.println("User registered successfully: Welcome " + user.name + " " + user.surname);
-            raf.close();  // Dosyayı kapat
+            out.println("╔══════════════════════════════════════════════════╗");
+            out.println("║ SUCCESS: User registered successfully!           ║");
+            out.println("║ Welcome, " + user.getName() + " " + user.getSurname() + "             ║");
+            out.println("╚══════════════════════════════════════════════════╝");
 
             return 1;
+
         } catch (IOException e) {
-            e.printStackTrace();  // Hata mesajını daha ayrıntılı yazdırmak için
+            e.printStackTrace();
             out.println("Error processing user file.");
             return 0;
         }
     }
+
 
     public int registerUserMenu(String pathFileUsers) {
 
@@ -1348,9 +1398,980 @@ public class Task {
         enterToContinue();
     }
 
+    /**
+     * @brief Demonstrates user hash table management with progressive overflow handling.
+     * This menu provides options for adding, searching, and displaying users.
+     */
+    public void progressiveOverflowDemo() {
+        int choice;
 
+        while (true) {
+            clearScreen();
+            out.println("╔══════════════════════════════════════════════════╗");
+            out.println("║           PROGRESSIVE OVERFLOW DEMO              ║");
+            out.println("╚══════════════════════════════════════════════════╝");
+            out.println("1. Add User");
+            out.println("2. Search User");
+            out.println("3. Display Users");
+            out.println("4. Exit");
+            out.print("Enter your choice: ");
 
+            choice = getInput();
 
+            if (choice == -2) {
+                handleInputError();
+                enterToContinue();
+                continue;
+            }
 
+            switch (choice) {
+                case 1:
+                    addUserToHashTable();
+                    break;
+                case 2:
+                    searchUserInHashTable();
+                    break;
+                case 3:
+                    displayUsersFromHashTable();
+                    break;
+                case 4:
+                    out.println("Exiting Progressive Overflow Demo...");
+                    return; // Menüden çıkış
+                default:
+                    out.println("Invalid choice. Please try again.");
+                    enterToContinue();
+            }
+        }
+    }
+
+    /**
+     * @brief Adds a user to the hash table using progressive overflow handling.
+     */
+    private void addUserToHashTable() {
+        clearScreen();
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║               USER REGISTRATION MENU             ║");
+        out.println("╠══════════════════════════════════════════════════╣");
+        out.println("║ Please provide the following details to register ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+
+        User user = new User();
+
+        out.print("➤ Enter Name       : ");
+        user.setName(scanner.nextLine());
+
+        out.print("➤ Enter Surname    : ");
+        user.setSurname(scanner.nextLine());
+
+        out.print("➤ Enter Email      : ");
+        user.setEmail(scanner.nextLine());
+
+        out.print("➤ Enter Password   : ");
+        user.setPassword(scanner.nextLine());
+
+        int index = hashFunction(user.getEmail());
+
+        // Eğer indeks boşsa, yeni bir LinkedList oluştur
+        if (hashTable[index] == null) {
+            hashTable[index] = new LinkedList<>();
+        }
+
+        // Aynı email var mı kontrol et
+        for (User u : hashTable[index]) {
+            if (u.getEmail().equals(user.getEmail())) {
+                out.println("User already exists at index " + index + " in hash table.");
+                return;
+            }
+        }
+
+        // Hash tablosuna ekle
+        if (hashTable[index].size() < TABLE_SIZE) {
+            hashTable[index].add(user);
+            out.println("\n╔══════════════════════════════════════════════════╗");
+            out.println("║ SUCCESS: User added to Main Hash Table.          ║");
+            out.println("║ Index: " + index + "                                    ║");
+            out.println("╚══════════════════════════════════════════════════╝");
+        } else {
+            // Taşma alanına ekle
+            if (overflowArea.size() < OVERFLOW_SIZE) {
+                overflowArea.add(user);
+                out.println("\n╔══════════════════════════════════════════════════╗");
+                out.println("║ NOTICE: User added to Overflow Area.            ║");
+                out.println("║ Overflow Index: " + (overflowArea.size() - 1) + "                              ║");
+                out.println("╚══════════════════════════════════════════════════╝");
+            } else {
+                out.println("\n╔══════════════════════════════════════════════════╗");
+                out.println("║ ERROR: Both Main Table and Overflow Area are full║");
+                out.println("║ Cannot add more users.                          ║");
+                out.println("╚══════════════════════════════════════════════════╝");
+            }
+        }
+
+        enterToContinue();
+    }
+
+    /**
+     * @brief Searches for a user in the hash table or overflow area.
+     */
+    private void searchUserInHashTable() {
+        clearScreen();
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║                 USER SEARCH MENU                 ║");
+        out.println("╠══════════════════════════════════════════════════╣");
+        out.println("║ Please provide the email to search for a user.   ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+
+        out.print("➤ Enter Email to search: ");
+        String email = scanner.nextLine();
+
+        out.print("Enter Password: ");
+        String password = scanner.nextLine();
+
+        int index = hashFunction(email);
+
+        // Hash tablosunda ara
+        if (hashTable[index] != null) {
+            for (User u : hashTable[index]) {
+                if (u.getEmail().equals(email) && u.getPassword().equals(password)) {
+                    out.println("\n╔══════════════════════════════════════════════════╗");
+                    out.println("║ USER FOUND IN MAIN TABLE                         ║");
+                    out.println("╠══════════════════════════════════════════════════╣");
+                    out.println("║ Name     : " + u.getName());
+                    out.println("║ Surname  : " + u.getSurname());
+                    out.println("╚══════════════════════════════════════════════════╝");
+                    enterToContinue();
+                    return;
+                }
+            }
+        }
+
+        // Taşma alanında ara
+        for (User u : overflowArea) {
+            if (u.getEmail().equals(email) && u.getPassword().equals(password)) {
+                out.println("\n╔══════════════════════════════════════════════════╗");
+                out.println("║ USER FOUND IN OVERFLOW AREA                      ║");
+                out.println("╠══════════════════════════════════════════════════╣");
+                out.println("║ Name     : " + u.getName());
+                out.println("║ Surname  : " + u.getSurname());
+                out.println("╚══════════════════════════════════════════════════╝");
+                enterToContinue();
+                return;
+            }
+        }
+
+        out.println("\n╔══════════════════════════════════════════════════╗");
+        out.println("║ ERROR: User not found in Main Table or Overflow. ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+        enterToContinue();
+    }
+
+    /**
+     * @brief Displays all users from the hash table and overflow area.
+     */
+    private void displayUsersFromHashTable() {
+        clearScreen();
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║               DISPLAY ALL USERS                  ║");
+        out.println("╠══════════════════════════════════════════════════╣");
+        for (int i = 0; i < TABLE_SIZE; i++) {
+            if (hashTable[i] != null && !hashTable[i].isEmpty()) {
+                out.println("╠═══ MAIN TABLE INDEX: " + i + " ═════════════════════════════╣");
+                for (User u : hashTable[i]) {
+                    out.println("║ Name     : " + u.getName());
+                    out.println("║ Email    : " + u.getEmail());
+                    out.println("╠──────────────────────────────────────────────────╣");                }
+            }
+        }
+
+        out.println("╠═══ OVERFLOW AREA ═════════════════════════════════╣");
+        for (int i = 0; i < overflowArea.size(); i++) {
+            User u = overflowArea.get(i);
+            out.println("║ Index    : " + i);
+            out.println("║ Name     : " + u.getName());
+            out.println("║ Email    : " + u.getEmail());
+            out.println("╠──────────────────────────────────────────────────╣");        }
+
+        enterToContinue();
+    }
+
+    /**
+     * @brief Demonstrates user hash table management with quadratic probing handling.
+     * This menu provides options for adding, searching, and displaying users.
+     */
+    public void quadraticProbingDemo() {
+        int choice;
+
+        while (true) {
+            clearScreen();
+            out.println("╔══════════════════════════════════════════════════╗");
+            out.println("║           QUADRATIC PROBING DEMO                 ║");
+            out.println("╚══════════════════════════════════════════════════╝");
+            out.println("1. Add User");
+            out.println("2. Search User");
+            out.println("3. Display Users");
+            out.println("4. Exit");
+            out.print("Enter your choice: ");
+
+            choice = getInput();
+
+            if (choice == -2) {
+                handleInputError();
+                enterToContinue();
+                continue;
+            }
+
+            switch (choice) {
+                case 1:
+                    addUserWithQuadraticProbing();
+                    break;
+                case 2:
+                    searchUserWithQuadraticProbing();
+                    break;
+                case 3:
+                    displayUsersWithQuadraticProbing();
+                    break;
+                case 4:
+                    out.println("Exiting Quadratic Probing Demo...");
+                    return; // Menüden çıkış
+                default:
+                    out.println("Invalid choice. Please try again.");
+                    enterToContinue();
+            }
+        }
+    }
+
+    /**
+     * @brief Adds a user to the hash table using quadratic probing handling.
+     */
+    private void addUserWithQuadraticProbing() {
+        clearScreen();
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║            USER REGISTRATION MENU                ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+
+        User user = new User();
+
+        out.print("➤ Enter Name       : ");
+        user.setName(scanner.nextLine());
+
+        out.print("➤ Enter Surname    : ");
+        user.setSurname(scanner.nextLine());
+
+        out.print("➤ Enter Email      : ");
+        user.setEmail(scanner.nextLine());
+
+        out.print("➤ Enter Password   : ");
+        user.setPassword(scanner.nextLine());
+
+        int index = hashFunction(user.getEmail());
+        int i = 1;
+
+        // Quadratic probing ile uygun bir boş indeks bul
+        while (hashTable[index] != null) {
+            LinkedList<User> bucket = hashTable[index];
+            if (bucket != null) {
+                for (User u : bucket) {
+                    if (u.getEmail().equals(user.getEmail())) {
+                        out.println("╔══════════════════════════════════════════════════╗");
+                        out.println("║ ERROR: User already exists at index " + index + ". ║");
+                        out.println("╚══════════════════════════════════════════════════╝");
+                        return;
+                    }
+                }
+            }
+
+            index = (index + i * i) % TABLE_SIZE;
+            i++;
+
+            if (i >= TABLE_SIZE) {
+                out.println("╔══════════════════════════════════════════════════╗");
+                out.println("║ ERROR: Hash table is full, cannot add more users.║");
+                out.println("╚══════════════════════════════════════════════════╝");
+                return;
+            }
+        }
+
+        if (hashTable[index] == null) {
+            hashTable[index] = new LinkedList<>();
+        }
+
+        hashTable[index].add(user);
+
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║ SUCCESS: User added at index " + index + " using Quadratic Probing. ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+
+        enterToContinue();
+    }
+
+    /**
+     * @brief Searches for a user in the hash table using quadratic probing.
+     */
+    private void searchUserWithQuadraticProbing() {
+        clearScreen();
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║                USER SEARCH MENU                  ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+
+        out.print("➤ Enter Email to search: ");
+        String email = scanner.nextLine();
+
+        out.print("➤ Enter Password       : ");
+        String password = scanner.nextLine();
+
+        int index = hashFunction(email);
+        int i = 1;
+
+        while (hashTable[index] != null) {
+            for (User u : hashTable[index]) {
+                if (u.getEmail().equals(email) && u.getPassword().equals(password)) {
+                    out.println("╔══════════════════════════════════════════════════╗");
+                    out.println("║ USER FOUND IN HASH TABLE                         ║");
+                    out.println("╠══════════════════════════════════════════════════╣");
+                    out.println("║ Name     : " + u.getName());
+                    out.println("║ Surname  : " + u.getSurname());
+                    out.println("╚══════════════════════════════════════════════════╝");
+                    enterToContinue();
+                    return;
+                }
+            }
+
+            index = (index + i * i) % TABLE_SIZE;
+            i++;
+
+            if (i >= TABLE_SIZE) {
+                break;
+            }
+        }
+
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║ ERROR: User not found in Hash Table.             ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+        enterToContinue();
+    }
+
+    /**
+     * @brief Displays all users from the hash table using quadratic probing.
+     */
+    private void displayUsersWithQuadraticProbing() {
+        clearScreen();
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║              DISPLAY ALL USERS                   ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+
+        for (int i = 0; i < TABLE_SIZE; i++) {
+            if (hashTable[i] != null && !hashTable[i].isEmpty()) {
+                out.println("╔═══ HASH TABLE INDEX: " + i + " ══════════════════════════╗");
+                for (User u : hashTable[i]) {
+                    out.println("║ Name  : " + u.getName());
+                    out.println("║ Email : " + u.getEmail());
+                    out.println("╠──────────────────────────────────────────────────╣");
+                }
+            }
+        }
+
+        out.println("╚══════════════════════════════════════════════════╝");
+        enterToContinue();
+    }
+
+    /**
+     * @brief Demonstrates user hash table management with double hashing for collision resolution.
+     * This menu provides options for adding, searching, and displaying users.
+     */
+    public void doubleHashingDemo() {
+        int choice;
+
+        while (true) {
+            clearScreen();
+            out.println("╔══════════════════════════════════════════════════╗");
+            out.println("║              DOUBLE HASHING DEMO                 ║");
+            out.println("╚══════════════════════════════════════════════════╝");
+            out.println("1. Add User");
+            out.println("2. Search User");
+            out.println("3. Display Users");
+            out.println("4. Exit");
+            out.print("Enter your choice: ");
+
+            choice = getInput();
+
+            if (choice == -2) {
+                handleInputError();
+                enterToContinue();
+                continue;
+            }
+
+            switch (choice) {
+                case 1:
+                    addUserWithDoubleHashing();
+                    break;
+                case 2:
+                    searchUserWithDoubleHashing();
+                    break;
+                case 3:
+                    displayUsersWithDoubleHashing();
+                    break;
+                case 4:
+                    out.println("Exiting Double Hashing Demo...");
+                    return; // Menüden çıkış
+                default:
+                    out.println("Invalid choice. Please try again.");
+                    enterToContinue();
+            }
+        }
+    }
+
+    /**
+     * @brief Adds a user to the hash table using double hashing for collision resolution.
+     */
+    private void addUserWithDoubleHashing() {
+        clearScreen();
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║            USER REGISTRATION MENU                ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+
+        User user = new User();
+
+        out.print("➤ Enter Name       : ");
+        user.setName(scanner.nextLine());
+
+        out.print("➤ Enter Surname    : ");
+        user.setSurname(scanner.nextLine());
+
+        out.print("➤ Enter Email      : ");
+        user.setEmail(scanner.nextLine());
+
+        out.print("➤ Enter Password   : ");
+        user.setPassword(scanner.nextLine());
+
+        int index = hashFunction(user.getEmail());
+        int stepSize = hashFunction2(user.getEmail());
+        int i = 0;
+
+        // Double hashing ile uygun bir boş indeks bul
+        while (hashTable[index] != null) {
+            LinkedList<User> bucket = hashTable[index];
+            if (bucket != null) {
+                for (User u : bucket) {
+                    if (u.getEmail().equals(user.getEmail())) {
+                        out.println("╔══════════════════════════════════════════════════╗");
+                        out.println("║ ERROR: User already exists at index " + index + ". ║");
+                        out.println("╚══════════════════════════════════════════════════╝");
+                        return;
+                    }
+                }
+            }
+
+            index = (index + stepSize) % TABLE_SIZE;
+            i++;
+
+            if (i >= TABLE_SIZE) {
+                out.println("╔══════════════════════════════════════════════════╗");
+                out.println("║ ERROR: Hash table is full, cannot add more users.║");
+                out.println("╚══════════════════════════════════════════════════╝");
+                return;
+            }
+        }
+
+        if (hashTable[index] == null) {
+            hashTable[index] = new LinkedList<>();
+        }
+
+        hashTable[index].add(user);
+
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║ SUCCESS: User added at index " + index + " using Double Hashing. ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+
+        enterToContinue();
+    }
+
+    /**
+     * @brief Searches for a user in the hash table using double hashing.
+     */
+    private void searchUserWithDoubleHashing() {
+        clearScreen();
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║                USER SEARCH MENU                  ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+
+        out.print("➤ Enter Email to search: ");
+        String email = scanner.nextLine();
+
+        out.print("➤ Enter Password       : ");
+        String password = scanner.nextLine();
+
+        int index = hashFunction(email);
+        int stepSize = hashFunction2(email);
+        int i = 0;
+
+        while (hashTable[index] != null) {
+            for (User u : hashTable[index]) {
+                if (u.getEmail().equals(email) && u.getPassword().equals(password)) {
+                    out.println("╔══════════════════════════════════════════════════╗");
+                    out.println("║ USER FOUND IN HASH TABLE                         ║");
+                    out.println("╠══════════════════════════════════════════════════╣");
+                    out.println("║ Name     : " + u.getName());
+                    out.println("║ Surname  : " + u.getSurname());
+                    out.println("╚══════════════════════════════════════════════════╝");
+                    enterToContinue();
+                    return;
+                }
+            }
+
+            index = (index + stepSize) % TABLE_SIZE;
+            i++;
+
+            if (i >= TABLE_SIZE) {
+                break;
+            }
+        }
+
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║ ERROR: User not found in Hash Table.             ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+        enterToContinue();
+    }
+
+    /**
+     * @brief Displays all users from the hash table using double hashing.
+     */
+    private void displayUsersWithDoubleHashing() {
+        clearScreen();
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║              DISPLAY ALL USERS                   ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+
+        for (int i = 0; i < TABLE_SIZE; i++) {
+            if (hashTable[i] != null && !hashTable[i].isEmpty()) {
+                out.println("╔═══ HASH TABLE INDEX: " + i + " ══════════════════════════╗");
+                for (User u : hashTable[i]) {
+                    out.println("║ Name  : " + u.getName());
+                    out.println("║ Email : " + u.getEmail());
+                    out.println("╠──────────────────────────────────────────────────╣");
+                }
+            }
+        }
+
+        out.println("╚══════════════════════════════════════════════════╝");
+        enterToContinue();
+    }
+
+    /**
+     * @brief Demonstrates user hash table management with linear quotient collision resolution.
+     * This menu provides options for adding, searching, and displaying users.
+     */
+    public void linearQuotientDemo() {
+        int choice;
+
+        while (true) {
+            clearScreen();
+            out.println("╔══════════════════════════════════════════════════╗");
+            out.println("║              LINEAR QUOTIENT DEMO                ║");
+            out.println("╚══════════════════════════════════════════════════╝");
+            out.println("1. Add User");
+            out.println("2. Search User");
+            out.println("3. Display Users");
+            out.println("4. Exit");
+            out.print("Enter your choice: ");
+
+            choice = getInput();
+
+            if (choice == -2) {
+                handleInputError();
+                enterToContinue();
+                continue;
+            }
+
+            switch (choice) {
+                case 1:
+                    addUserWithLinearQuotient();
+                    break;
+                case 2:
+                    searchUserWithLinearQuotient();
+                    break;
+                case 3:
+                    displayUsersWithLinearQuotient();
+                    break;
+                case 4:
+                    out.println("Exiting Linear Quotient Demo...");
+                    return; // Menüden çıkış
+                default:
+                    out.println("Invalid choice. Please try again.");
+                    enterToContinue();
+            }
+        }
+    }
+
+    /**
+     * @brief Adds a user to the hash table using linear quotient collision resolution.
+     */
+    private void addUserWithLinearQuotient() {
+        clearScreen();
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║            USER REGISTRATION MENU                ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+
+        User user = new User();
+
+        out.print("➤ Enter Name       : ");
+        user.setName(scanner.nextLine());
+
+        out.print("➤ Enter Surname    : ");
+        user.setSurname(scanner.nextLine());
+
+        out.print("➤ Enter Email      : ");
+        user.setEmail(scanner.nextLine());
+
+        out.print("➤ Enter Password   : ");
+        user.setPassword(scanner.nextLine());
+
+        int index = hashFunction(user.getEmail());
+        int stepSize = 3; // Linear Quotient sabit adım değeri
+        int originalIndex = index;
+
+        // Linear Quotient ile uygun bir boş indeks bul
+        while (hashTable[index] != null) {
+            LinkedList<User> bucket = hashTable[index];
+            if (bucket != null) {
+                for (User u : bucket) {
+                    if (u.getEmail().equals(user.getEmail())) {
+                        out.println("╔══════════════════════════════════════════════════╗");
+                        out.println("║ ERROR: User already exists at index " + index + ". ║");
+                        out.println("╚══════════════════════════════════════════════════╝");
+                        return;
+                    }
+                }
+            }
+
+            index = (index + stepSize) % TABLE_SIZE;
+
+            if (index == originalIndex) {
+                out.println("╔══════════════════════════════════════════════════╗");
+                out.println("║ ERROR: Hash table is full, cannot add more users.║");
+                out.println("╚══════════════════════════════════════════════════╝");
+                return;
+            }
+        }
+
+        if (hashTable[index] == null) {
+            hashTable[index] = new LinkedList<>();
+        }
+
+        hashTable[index].add(user);
+
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║ SUCCESS: User added at index " + index + " using Linear Quotient. ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+
+        enterToContinue();
+    }
+
+    /**
+     * @brief Searches for a user in the hash table using linear quotient.
+     */
+    private void searchUserWithLinearQuotient() {
+        clearScreen();
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║                USER SEARCH MENU                  ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+
+        out.print("➤ Enter Email to search: ");
+        String email = scanner.nextLine();
+
+        out.print("➤ Enter Password       : ");
+        String password = scanner.nextLine();
+
+        int index = hashFunction(email);
+        int stepSize = 3;
+        int originalIndex = index;
+
+        while (hashTable[index] != null) {
+            for (User u : hashTable[index]) {
+                if (u.getEmail().equals(email) && u.getPassword().equals(password)) {
+                    out.println("╔══════════════════════════════════════════════════╗");
+                    out.println("║ USER FOUND IN HASH TABLE                         ║");
+                    out.println("╠══════════════════════════════════════════════════╣");
+                    out.println("║ Name     : " + u.getName());
+                    out.println("║ Surname  : " + u.getSurname());
+                    out.println("╚══════════════════════════════════════════════════╝");
+                    enterToContinue();
+                    return;
+                }
+            }
+
+            index = (index + stepSize) % TABLE_SIZE;
+
+            if (index == originalIndex) {
+                break;
+            }
+        }
+
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║ ERROR: User not found in Hash Table.             ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+        enterToContinue();
+    }
+    /**
+     * @brief Displays all users from the hash table using linear quotient.
+     */
+    private void displayUsersWithLinearQuotient() {
+        clearScreen();
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║              DISPLAY ALL USERS                   ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+
+        for (int i = 0; i < TABLE_SIZE; i++) {
+            if (hashTable[i] != null && !hashTable[i].isEmpty()) {
+                out.println("╔═══ HASH TABLE INDEX: " + i + " ══════════════════════════╗");
+                for (User u : hashTable[i]) {
+                    out.println("║ Name  : " + u.getName());
+                    out.println("║ Email : " + u.getEmail());
+                    out.println("╠──────────────────────────────────────────────────╣");
+                }
+            }
+        }
+
+        out.println("╚══════════════════════════════════════════════════╝");
+        enterToContinue();
+    }
+
+    /**
+     * @brief Demonstrates user hash table management with Brent's Method collision resolution.
+     * This menu provides options for adding, searching, and displaying users.
+     */
+    public void brentsMethodDemo() {
+        int choice;
+
+        while (true) {
+            clearScreen();
+            out.println("╔══════════════════════════════════════════════════╗");
+            out.println("║               BRENT'S METHOD DEMO                ║");
+            out.println("╚══════════════════════════════════════════════════╝");
+            out.println("1. Add User");
+            out.println("2. Search User");
+            out.println("3. Display Users");
+            out.println("4. Exit");
+            out.print("Enter your choice: ");
+
+            choice = getInput();
+
+            if (choice == -2) {
+                handleInputError();
+                enterToContinue();
+                continue;
+            }
+
+            switch (choice) {
+                case 1:
+                    addUserWithBrentsMethod();
+                    break;
+                case 2:
+                    searchUserWithBrentsMethod();
+                    break;
+                case 3:
+                    displayUsersWithBrentsMethod();
+                    break;
+                case 4:
+                    out.println("Exiting Brent's Method Demo...");
+                    return; // Menüden çıkış
+                default:
+                    out.println("Invalid choice. Please try again.");
+                    enterToContinue();
+            }
+        }
+    }
+
+    /**
+     * @brief Adds a user to the hash table using Brent's Method for collision resolution.
+     */
+    private void addUserWithBrentsMethod() {
+        clearScreen();
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║            USER REGISTRATION MENU                ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+
+        User user = new User();
+
+        out.print("➤ Enter Name       : ");
+        user.setName(scanner.nextLine());
+
+        out.print("➤ Enter Surname    : ");
+        user.setSurname(scanner.nextLine());
+
+        out.print("➤ Enter Email      : ");
+        user.setEmail(scanner.nextLine());
+
+        out.print("➤ Enter Password   : ");
+        user.setPassword(scanner.nextLine());
+
+        int index = hashFunction(user.getEmail());
+        int stepSize = secondHashFunction(user.getEmail());
+        int originalIndex = index;
+
+        // Brent's Method ile uygun bir boş indeks bul
+        int i = 1;
+        int trialIndex1, trialIndex2;
+        boolean placed = false;
+
+        while (hashTable[index] != null) {
+            for (User u : hashTable[index]) {
+                if (u.getEmail().equals(user.getEmail())) {
+                    out.println("╔══════════════════════════════════════════════════╗");
+                    out.println("║ ERROR: User already exists at index " + index + ". ║");
+                    out.println("╚══════════════════════════════════════════════════╝");
+                    return;
+                }
+            }
+
+            trialIndex1 = (index + i * stepSize) % TABLE_SIZE; // İlk alternatif konum
+            trialIndex2 = (originalIndex + i) % TABLE_SIZE;    // İkinci alternatif konum
+
+            if (hashTable[trialIndex1] == null) {
+                index = trialIndex1;
+                placed = true;
+                break;
+            } else if (hashTable[trialIndex2] == null) {
+                index = trialIndex2;
+                placed = true;
+                break;
+            }
+
+            i++;
+            if (i >= TABLE_SIZE) {
+                out.println("╔══════════════════════════════════════════════════╗");
+                out.println("║ ERROR: Hash table is full, cannot add more users.║");
+                out.println("╚══════════════════════════════════════════════════╝");
+                return;
+            }
+        }
+
+        if (hashTable[index] == null) {
+            hashTable[index] = new LinkedList<>();
+        }
+
+        hashTable[index].add(user);
+
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║ SUCCESS: User added at index " + index + " using Brent's Method. ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+
+        enterToContinue();
+    }
+
+    /**
+     * @brief Searches for a user in the hash table using Brent's Method.
+     */
+    private void searchUserWithBrentsMethod() {
+        clearScreen();
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║                USER SEARCH MENU                  ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+
+        out.print("➤ Enter Email to search: ");
+        String email = scanner.nextLine();
+
+        out.print("➤ Enter Password       : ");
+        String password = scanner.nextLine();
+
+        int index = hashFunction(email);
+        int stepSize = secondHashFunction(email);
+
+        int i = 0;
+        while (hashTable[index] != null) {
+            for (User u : hashTable[index]) {
+                if (u.getEmail().equals(email) && u.getPassword().equals(password)) {
+                    out.println("╔══════════════════════════════════════════════════╗");
+                    out.println("║ USER FOUND IN HASH TABLE                         ║");
+                    out.println("╠══════════════════════════════════════════════════╣");
+                    out.println("║ Name     : " + u.getName());
+                    out.println("║ Surname  : " + u.getSurname());
+                    out.println("╚══════════════════════════════════════════════════╝");
+                    enterToContinue();
+                    return;
+                }
+            }
+
+            index = (index + stepSize) % TABLE_SIZE;
+            i++;
+            if (i >= TABLE_SIZE) {
+                break;
+            }
+        }
+
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║ ERROR: User not found in Hash Table.             ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+        enterToContinue();
+    }
+
+    /**
+     * @brief Displays all users from the hash table using Brent's Method.
+     */
+    private void displayUsersWithBrentsMethod() {
+        clearScreen();
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║              DISPLAY ALL USERS                   ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+
+        for (int i = 0; i < TABLE_SIZE; i++) {
+            if (hashTable[i] != null && !hashTable[i].isEmpty()) {
+                out.println("╔═══ HASH TABLE INDEX: " + i + " ══════════════════════════╗");
+                for (User u : hashTable[i]) {
+                    out.println("║ Name  : " + u.getName());
+                    out.println("║ Email : " + u.getEmail());
+                    out.println("╠──────────────────────────────────────────────────╣");
+                }
+            }
+        }
+
+        out.println("╚══════════════════════════════════════════════════╝");
+        enterToContinue();
+    }
+
+    /**
+     * @brief Secondary hash function for double hashing.
+     *
+     * This method calculates a secondary hash value for the given email string.
+     * It sums the ASCII values of each character in the email and calculates a modulus
+     * with (TABLE_SIZE - 1). This value is used as a step size in double hashing.
+     *
+     * @param email The email string to be hashed.
+     * @return int The secondary hash value for the given email.
+     *
+     * Example Usage:
+     * {@code
+     *     int index = hashFunction2("example@example.com");
+     * }
+     */
+    public static int hashFunction2(String email) {
+        int hash = 0;
+        for (int i = 0; i < email.length(); i++) {
+            hash = (hash + email.charAt(i)) % (TABLE_SIZE - 1);
+        }
+        return (TABLE_SIZE - 1 - hash);
+    }
+
+    /**
+     * @brief Alternative secondary hash function for double hashing.
+     *
+     * This method calculates an alternative secondary hash value for the given email string.
+     * It multiplies the current hash value by 31 and adds the ASCII value of each character,
+     * then calculates the modulus with TABLE_SIZE to ensure the hash value remains within bounds.
+     *
+     * @param email The email string to be hashed.
+     * @return int The secondary hash value for the given email.
+     *
+     * Example Usage:
+     * {@code
+     *     int index = secondHashFunction("example@example.com");
+     * }
+     */
+    public static int secondHashFunction(String email) {
+        int hash = 0;
+        for (int i = 0; i < email.length(); i++) {
+            hash = (hash * 31 + email.charAt(i)) % TABLE_SIZE;
+        }
+        return (TABLE_SIZE - 1 - hash);
+    }
 
 }
