@@ -1193,7 +1193,7 @@ public void testUserOptionsMenu_InvalidChoice() {
   @Test
   public void testAlgorithmsMenuOverflow() {
     // Arrange
-    String simulatedInput = "1\nt\nt\nt\nt\n\n2\nt\nt\n\n3\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    String simulatedInput = "1\n1\nt\nt\nt\nt\n\n2\nt\nt\n\n3\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
     InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
     ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 
@@ -1207,10 +1207,10 @@ public void testUserOptionsMenu_InvalidChoice() {
 
   }
 
-  /*@Test
-  public void testAlgorithmsMenuProbing() {
+  @Test
+  public void testAlgorithmsMenuOverflowInvalid() {
     // Arrange
-    String simulatedInput = "2\naa\naa\naa\naa\n\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    String simulatedInput = "1\n5\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
     InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
     ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 
@@ -1222,12 +1222,216 @@ public void testUserOptionsMenu_InvalidChoice() {
     // Act
     task.algorithmsMenu();
 
-  }*/
+  }
+
+  @Test
+  public void testAlgorithmsMenuOverflowNotFound() {
+    // Arrange
+    String simulatedInput = "1\n2\nr\nr\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  @Test
+  public void testAlgorithmsMenuOverflowAlreadyExists() {
+    // Arrange
+    String simulatedInput = "1\n1\na\na\na\na\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  @Test
+  public void testAlgorithmsMenuOverflowHandleInputError() {
+    // Arrange
+    String simulatedInput = "1\n-2\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  @Test
+  public void testAlgorithmsMenuLinearProbing() {
+    // Arrange
+    String simulatedInput = "2\n1\np\np\np\np\n\n2\np\np\n\n3\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  @Test
+  public void testAlgorithmsMenuLinearProbingInvalid() {
+    // Arrange
+    String simulatedInput = "2\n5\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  @Test
+  public void testAlgorithmsMenuLinearProbingNotFound() {
+    // Arrange
+    String simulatedInput = "2\n2\nr\nr\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  @Test
+  public void testAlgorithmsMenuLinearProbingAlreadyExists() {
+    // Arrange
+    String simulatedInput = "2\n1\na\na\na\na\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  @Test
+  public void testAlgorithmsMenuLinearProbingHandleInputError() {
+    // Arrange
+    String simulatedInput = "2\n-2\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
 
   @Test
   public void testAlgorithmsMenuQuadratic() {
     // Arrange
     String simulatedInput = "3\n1\nk\nk\nk\nk\n\n2\nk\nk\n\n3\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  @Test
+  public void testAlgorithmsMenuQuadraticInvalid() {
+    // Arrange
+    String simulatedInput = "3\n5\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  @Test
+  public void testAlgorithmsMenuQuadraticNotFound() {
+    // Arrange
+    String simulatedInput = "3\n2\nr\nr\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  @Test
+  public void testAlgorithmsMenuQuadraticAlreadyExists() {
+    // Arrange
+    String simulatedInput = "3\n1\na\na\na\na\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  @Test
+  public void testAlgorithmsMenuQuadraticHandleInputError() {
+    // Arrange
+    String simulatedInput = "3\n-2\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
     InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
     ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 
@@ -1259,9 +1463,145 @@ public void testUserOptionsMenu_InvalidChoice() {
   }
 
   @Test
+  public void testAlgorithmsMenuDoubleHashingInvalid() {
+    // Arrange
+    String simulatedInput = "4\n5\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  @Test
+  public void testAlgorithmsMenuDoubleHashingNotFound() {
+    // Arrange
+    String simulatedInput = "4\n2\nr\nr\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  @Test
+  public void testAlgorithmsMenuDoubleHashingAlreadyExists() {
+    // Arrange
+    String simulatedInput = "4\n1\na\na\na\na\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  @Test
+  public void testAlgorithmsMenuDoubleHashingHandleInputError() {
+    // Arrange
+    String simulatedInput = "4\n-2\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  @Test
   public void testAlgorithmsMenuLinearQuotient() {
     // Arrange
     String simulatedInput = "6\n1\nz\nz\nz\nz\n\n2\nz\nz\n\n3\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  @Test
+  public void testAlgorithmsMenuLinearQuotientInvalid() {
+    // Arrange
+    String simulatedInput = "6\n5\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  @Test
+  public void testAlgorithmsMenuLinearQuotientNotFound() {
+    // Arrange
+    String simulatedInput = "6\n2\nr\nr\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  @Test
+  public void testAlgorithmsMenuLinearQuotientAlreadyExists() {
+    // Arrange
+    String simulatedInput = "6\n1\na\na\na\na\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  @Test
+  public void testAlgorithmsMenuLinearQuotientHandleInputError() {
+    // Arrange
+    String simulatedInput = "6\n-2\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
     InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
     ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 
@@ -1292,6 +1632,105 @@ public void testUserOptionsMenu_InvalidChoice() {
 
   }
 
+  @Test
+  public void testAlgorithmsMenuBrentsMethodInvalid() {
+    // Arrange
+    String simulatedInput = "7\n5\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  @Test
+  public void testAlgorithmsMenuBrentsMethodNotFound() {
+    // Arrange
+    String simulatedInput = "7\n2\nr\nr\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  @Test
+  public void testAlgorithmsMenuBrentsMethodAlreadyExists() {
+    // Arrange
+    String simulatedInput = "7\n1\na\na\na\na\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  @Test
+  public void testAlgorithmsMenuBrentsMethodHandleInputError() {
+    // Arrange
+    String simulatedInput = "7\n-2\n\n4\n\n8\n6\n3\n"; // Geçersiz giriş -> abc, sonra çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.algorithmsMenu();
+
+  }
+
+  @Test
+  public void testMarkTaskImportance() {
+    // Arrange
+    String simulatedInput = "1\nTask 1\n1\n\n1\nTask 1\n2\n\n1\nTask 1\n3\n\n3\n6\n3\n";
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    task.taskPrioritizationMenu();
+
+  }
+
+  @Test
+  public void testImportanceOrdering() {
+    // Arrange
+    String simulatedInput = "1\n2\n\n3\n6\n3\n";
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    task.taskPrioritizationMenu();
+
+  }
 
 
 

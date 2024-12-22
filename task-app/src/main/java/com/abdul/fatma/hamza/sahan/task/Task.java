@@ -26,7 +26,7 @@ public class Task {
 
 
     public static final int TABLE_SIZE = 100;  // Hash tablosunun boyutu
-    private static LinkedList<User>[] hashTable = new LinkedList[TABLE_SIZE];
+    public static LinkedList<User>[] hashTable = new LinkedList[TABLE_SIZE];
     private static ArrayList<TaskInfo> taskList = new ArrayList<>();
     private static int taskCount = 0;  // Global olarak tanımlandı
     private static final int MAX_TASKS = 100;
@@ -1328,75 +1328,176 @@ public class Task {
 
 
     /**
-     * @brief Inserts a user into the hash table using linear probing.
-     *
-     * @param user The user to be added to the hash table.
+     * @brief Demonstrates user hash table management with linear probing.
+     * This menu provides options for adding, searching, and displaying users.
      */
-    public void insertUserToHashTableWithLinearProbing(User user) {
-        int index = hashFunction(user.getEmail());
-        int originalIndex = index;
+    public void linearProbingDemo() {
+        int choice;
 
-        out.println("Inserting user with email: " + user.getEmail());
+        while (true) {
+            clearScreen();
+            out.println("╔══════════════════════════════════════════════════╗");
+            out.println("║            LINEAR PROBING DEMO                   ║");
+            out.println("╚══════════════════════════════════════════════════╝");
+            out.println("1. Add User");
+            out.println("2. Search User");
+            out.println("3. Display Users");
+            out.println("4. Exit");
+            out.print("Enter your choice: ");
 
-        // Linear probing to find an empty spot or existing user
-        for (int i = 0; i < TABLE_SIZE; i++) {
-            LinkedList<User> bucket = hashTable[index];
+            choice = getInput();
 
-            // Kullanıcı zaten mevcut mu kontrol et
-            for (User existingUser : bucket) {
-                if (existingUser.getEmail().equals(user.getEmail())) {
-                    out.println("User already exists at index " + index);
-                    return;
-                }
+            if (choice == -2) {
+                handleInputError();
+                enterToContinue();
+                continue;
             }
 
-            // Eğer bucket boşsa kullanıcıyı ekle
-            if (bucket.isEmpty()) {
-                bucket.add(user);
-                out.println("User added at index " + index);
-                return;
-            }
-
-            // Bir sonraki indexe geç
-            index = (index + 1) % TABLE_SIZE;
-
-            if (index == originalIndex) {
-                out.println("Hash table is full, cannot add more users.");
-                return;
+            switch (choice) {
+                case 1:
+                    addUserWithLinearProbing();
+                    break;
+                case 2:
+                    searchUserWithLinearProbing();
+                    break;
+                case 3:
+                    displayUsersWithLinearProbing();
+                    break;
+                case 4:
+                    out.println("Exiting Linear Probing Demo...");
+                    return; // Menüden çıkış
+                default:
+                    out.println("Invalid choice. Please try again.");
+                    enterToContinue();
             }
         }
     }
 
-
-
-
     /**
-     * @brief Demonstrates the usage of linear probing for user hash table management.
+     * @brief Adds a user to the hash table using linear probing for collision resolution.
      */
-    public void linearProbingDemo() {
-        out.println("Linear Probing is active for user hash table management.");
-
-        Scanner scanner = new Scanner(System.in);
+    private void addUserWithLinearProbing() {
+        clearScreen();
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║            USER REGISTRATION MENU                ║");
+        out.println("╚══════════════════════════════════════════════════╝");
 
         User user = new User();
 
-        out.print("Name: ");
+        out.print("➤ Enter Name       : ");
         user.setName(scanner.nextLine());
 
-        out.print("Surname: ");
+        out.print("➤ Enter Surname    : ");
         user.setSurname(scanner.nextLine());
 
-        out.print("Email: ");
+        out.print("➤ Enter Email      : ");
         user.setEmail(scanner.nextLine());
 
-        out.print("Password: ");
+        out.print("➤ Enter Password   : ");
         user.setPassword(scanner.nextLine());
 
-        insertUserToHashTableWithLinearProbing(user);
+        int index = hashFunction(user.getEmail());
+        int originalIndex = index;
 
-        out.println("User insertion complete.");
+        int probes = 0;
+
+        // Linear Probing ile uygun boş indeks bul
+        while (hashTable[index] != null) {
+            for (User u : hashTable[index]) {
+                if (u.getEmail().equals(user.getEmail())) {
+                    out.println("╔══════════════════════════════════════════════════╗");
+                    out.println("║ ERROR: User already exists at index " + index + ". ║");
+                    out.println("╚══════════════════════════════════════════════════╝");
+                    return;
+                }
+            }
+
+        }
+
+        if (hashTable[index] == null) {
+            hashTable[index] = new LinkedList<>();
+        }
+
+        hashTable[index].add(user);
+
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║ SUCCESS: User added at index " + index + " using Linear Probing. ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+
         enterToContinue();
     }
+
+    /**
+     * @brief Searches for a user in the hash table using linear probing.
+     */
+    private void searchUserWithLinearProbing() {
+        clearScreen();
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║                USER SEARCH MENU                  ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+
+        out.print("➤ Enter Email to search: ");
+        String email = scanner.nextLine();
+
+        out.print("➤ Enter Password       : ");
+        String password = scanner.nextLine();
+
+        int index = hashFunction(email);
+        int originalIndex = index;
+        int probes = 0;
+
+        while (hashTable[index] != null) {
+            for (User u : hashTable[index]) {
+                if (u.getEmail().equals(email) && u.getPassword().equals(password)) {
+                    out.println("╔══════════════════════════════════════════════════╗");
+                    out.println("║ USER FOUND IN HASH TABLE                         ║");
+                    out.println("╠══════════════════════════════════════════════════╣");
+                    out.println("║ Name     : " + u.getName());
+                    out.println("║ Surname  : " + u.getSurname());
+                    out.println("╚══════════════════════════════════════════════════╝");
+                    enterToContinue();
+                    return;
+                }
+            }
+
+            index = (index + 1) % TABLE_SIZE;
+            probes++;
+
+            if (index == originalIndex || probes >= TABLE_SIZE) {
+                break;
+            }
+        }
+
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║ ERROR: User not found in Hash Table.             ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+        enterToContinue();
+    }
+
+    /**
+     * @brief Displays all users from the hash table using linear probing.
+     */
+    private void displayUsersWithLinearProbing() {
+        clearScreen();
+        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("║              DISPLAY ALL USERS                   ║");
+        out.println("╚══════════════════════════════════════════════════╝");
+
+        for (int i = 0; i < TABLE_SIZE; i++) {
+            if (hashTable[i] != null && !hashTable[i].isEmpty()) {
+                out.println("╔═══ HASH TABLE INDEX: " + i + " ══════════════════════════╗");
+                for (User u : hashTable[i]) {
+                    out.println("║ Name  : " + u.getName());
+                    out.println("║ Email : " + u.getEmail());
+                    out.println("╠──────────────────────────────────────────────────╣");
+                }
+            }
+        }
+
+        out.println("╚══════════════════════════════════════════════════╝");
+        enterToContinue();
+    }
+
 
     /**
      * @brief Demonstrates user hash table management with progressive overflow handling.
@@ -1492,19 +1593,7 @@ public class Task {
             out.println("║ Index: " + index + "                                    ║");
             out.println("╚══════════════════════════════════════════════════╝");
         } else {
-            // Taşma alanına ekle
-            if (overflowArea.size() < OVERFLOW_SIZE) {
-                overflowArea.add(user);
-                out.println("\n╔══════════════════════════════════════════════════╗");
-                out.println("║ NOTICE: User added to Overflow Area.            ║");
-                out.println("║ Overflow Index: " + (overflowArea.size() - 1) + "                              ║");
-                out.println("╚══════════════════════════════════════════════════╝");
-            } else {
-                out.println("\n╔══════════════════════════════════════════════════╗");
-                out.println("║ ERROR: Both Main Table and Overflow Area are full║");
-                out.println("║ Cannot add more users.                          ║");
-                out.println("╚══════════════════════════════════════════════════╝");
-            }
+
         }
 
         enterToContinue();
@@ -1545,20 +1634,6 @@ public class Task {
             }
         }
 
-        // Taşma alanında ara
-        for (User u : overflowArea) {
-            if (u.getEmail().equals(email) && u.getPassword().equals(password)) {
-                out.println("\n╔══════════════════════════════════════════════════╗");
-                out.println("║ USER FOUND IN OVERFLOW AREA                      ║");
-                out.println("╠══════════════════════════════════════════════════╣");
-                out.println("║ Name     : " + u.getName());
-                out.println("║ Surname  : " + u.getSurname());
-                out.println("╚══════════════════════════════════════════════════╝");
-                enterToContinue();
-                return;
-            }
-        }
-
         out.println("\n╔══════════════════════════════════════════════════╗");
         out.println("║ ERROR: User not found in Main Table or Overflow. ║");
         out.println("╚══════════════════════════════════════════════════╝");
@@ -1583,14 +1658,6 @@ public class Task {
             }
         }
 
-        out.println("╠═══ OVERFLOW AREA ═════════════════════════════════╣");
-        for (int i = 0; i < overflowArea.size(); i++) {
-            User u = overflowArea.get(i);
-            out.println("║ Index    : " + i);
-            out.println("║ Name     : " + u.getName());
-            out.println("║ Email    : " + u.getEmail());
-            out.println("╠──────────────────────────────────────────────────╣");        }
-
         enterToContinue();
     }
 
@@ -1614,11 +1681,7 @@ public class Task {
 
             choice = getInput();
 
-            if (choice == -2) {
-                handleInputError();
-                enterToContinue();
-                continue;
-            }
+            if (choice == -2) { handleInputError(); enterToContinue(); continue; }
 
             switch (choice) {
                 case 1:
@@ -1680,15 +1743,6 @@ public class Task {
                 }
             }
 
-            index = (index + i * i) % TABLE_SIZE;
-            i++;
-
-            if (i >= TABLE_SIZE) {
-                out.println("╔══════════════════════════════════════════════════╗");
-                out.println("║ ERROR: Hash table is full, cannot add more users.║");
-                out.println("╚══════════════════════════════════════════════════╝");
-                return;
-            }
         }
 
         if (hashTable[index] == null) {
@@ -1823,7 +1877,7 @@ public class Task {
     /**
      * @brief Adds a user to the hash table using double hashing for collision resolution.
      */
-    private void addUserWithDoubleHashing() {
+    public void addUserWithDoubleHashing() {
         clearScreen();
         out.println("╔══════════════════════════════════════════════════╗");
         out.println("║            USER REGISTRATION MENU                ║");
@@ -1861,15 +1915,6 @@ public class Task {
                 }
             }
 
-            index = (index + stepSize) % TABLE_SIZE;
-            i++;
-
-            if (i >= TABLE_SIZE) {
-                out.println("╔══════════════════════════════════════════════════╗");
-                out.println("║ ERROR: Hash table is full, cannot add more users.║");
-                out.println("╚══════════════════════════════════════════════════╝");
-                return;
-            }
         }
 
         if (hashTable[index] == null) {
@@ -2043,14 +2088,7 @@ public class Task {
                 }
             }
 
-            index = (index + stepSize) % TABLE_SIZE;
 
-            if (index == originalIndex) {
-                out.println("╔══════════════════════════════════════════════════╗");
-                out.println("║ ERROR: Hash table is full, cannot add more users.║");
-                out.println("╚══════════════════════════════════════════════════╝");
-                return;
-            }
         }
 
         if (hashTable[index] == null) {
@@ -2236,13 +2274,6 @@ public class Task {
                 break;
             }
 
-            i++;
-            if (i >= TABLE_SIZE) {
-                out.println("╔══════════════════════════════════════════════════╗");
-                out.println("║ ERROR: Hash table is full, cannot add more users.║");
-                out.println("╚══════════════════════════════════════════════════╝");
-                return;
-            }
         }
 
         if (hashTable[index] == null) {

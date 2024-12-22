@@ -965,3 +965,7 @@ coverage*[.json, .xml, .info]
 /task-app/src/site/resources/assets
 /task-app/src/site/resources/images/rteu_logo.jpg
 task-app/tasks.bin
+task-app/deadlines.bin
+tasks.bin
+user.huf
+users.bin
