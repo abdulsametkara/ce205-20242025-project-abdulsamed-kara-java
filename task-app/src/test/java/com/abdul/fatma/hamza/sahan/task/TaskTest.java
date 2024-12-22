@@ -2487,7 +2487,7 @@ public void testUserOptionsMenu_InvalidChoice() {
 
   // Test 4: Boş XOR Linked List'te Gezinme
   @Test
-  public void testNavigateEmptyXORList() {
+  public void testNavigateEmptyXORListt() {
     // Arrange
     XORLinkedList xorList = new XORLinkedList();
 
@@ -2497,52 +2497,6 @@ public void testUserOptionsMenu_InvalidChoice() {
     // Assert
     String output = outContent.toString();
     assertTrue(output.contains("No tasks found in the list."));
-  }
-
-  @Test
-  public void testCreateTaskMenuDependen() {
-    // Arrange
-    String input = "1\na\na\na\n2222 11 12\n1\n1\n\n4\n1\n9\n6\n3\n"; // 4: Görev bağımlılıklarını görüntüleme seçeneği, 1: Görev ID'si
-    InputStream inputStream = new ByteArrayInputStream(input.getBytes());
-    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-
-    System.setIn(inputStream); // Kullanıcı girdisini simüle et
-    System.setOut(new PrintStream(outContent)); // Konsol çıktısını yakala
-
-    // Test görev listesini hazırla
-    ArrayList<TaskInfo> testTaskList = new ArrayList<>();
-    TaskInfo task1 = new TaskInfo();
-    task1.setId(1);
-    task1.setName("Sample Task 1");
-    task1.setDescription("Description 1");
-    task1.setCategory("Category 1");
-    task1.setDueDate("2024-12-31");
-    task1.setDependencyCount(2);
-    task1.setDependencies(new int[]{2, 3});
-
-    TaskInfo task2 = new TaskInfo();
-    task2.setId(2);
-    task2.setName("Sample Task 2");
-    task2.setDescription("Description 2");
-
-    TaskInfo task3 = new TaskInfo();
-    task3.setId(3);
-    task3.setName("Sample Task 3");
-    task3.setDescription("Description 3");
-
-    testTaskList.add(task1);
-    testTaskList.add(task2);
-    testTaskList.add(task3);
-
-    Task task = new Task(new Scanner(System.in), System.out);
-    taskList = testTaskList;
-
-    // Act
-    task.createTaskMenu();
-
-    // Cleanup
-    System.setIn(originalIn);
-    System.setOut(originalOut);
   }
 
 
@@ -2839,7 +2793,7 @@ public void testUserOptionsMenu_InvalidChoice() {
 
 
   @Test
-  public void testCreateTaskMenuDependen() {
+  public void testCreateTaskMenuDependenn() {
     // Arrange
     String input = "1\na\na\na\n2222 11 12\n1\n1\n\n4\n1\n9\n6\n3\n"; // 4: Görev bağımlılıklarını görüntüleme seçeneği, 1: Görev ID'si
     InputStream inputStream = new ByteArrayInputStream(input.getBytes());
