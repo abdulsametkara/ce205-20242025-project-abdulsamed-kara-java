@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.PriorityQueue;
 import java.util.Scanner;
 import org.junit.After;
 import org.junit.Before;
@@ -34,7 +35,8 @@ public class TaskTest {
   private final PrintStream originalOut = System.out;
   private final InputStream originalIn = System.in;
   Scanner inputScanner = new Scanner(System.in);
-
+  public static TaskNode head = null;
+  public static TaskNode tail = null;
   private String taskFile = "tasksTest.bin";
   private String userFile = "usersTest.bin";
   private static ArrayList<TaskInfo> taskList = new ArrayList<>();
@@ -1801,9 +1803,6 @@ public void testUserOptionsMenu_InvalidChoice() {
   public void testSetReminders() {
     // Arrange
     String simulatedInput = "3\n1\n0\n0\n0\n1\n\n3\n6\n3\n";
-  public void testAlgorithmsMenu() {
-    // Arrange
-    String simulatedInput = "1\n4\n\n2\n4\n\n3\n4\n\n4\n4\n\n5\n4\n\n6\n4\n\n7\n4\n\n8\n6\n\n";
     InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
     ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 
@@ -1845,11 +1844,6 @@ public void testUserOptionsMenu_InvalidChoice() {
     task.userOptionsMenu();
   }
 
-
-
-    task.algorithmsMenu();
-
-  }
 
   @Test
   public void testLoginUser_IncorrectEmailOrPassword() {
@@ -2258,7 +2252,543 @@ public void testUserOptionsMenu_InvalidChoice() {
     Task.computePrefixTable(pattern, prefixTable);
 
   }
-  
+
+  @Test
+  public void testAddTaskToList_AddToEmptyList() {
+    // Arrange
+    Task task = new Task(new Scanner(System.in), System.out);
+    TaskInfo newTask = new TaskInfo();
+    newTask.setId(1);
+    newTask.setName("Test Task");
+    newTask.setDescription("This is a test task.");
+    newTask.setCategory("General");
+    newTask.setDueDate("2024-12-31");
+
+    // Act
+    task.addTaskToList(newTask);
+
+  }
+
+  @Test
+  public void testAddTaskToList_AddToNonEmptyList() {
+    // Arrange
+    Task task = new Task(new Scanner(System.in), System.out);
+    TaskInfo firstTask = new TaskInfo();
+    firstTask.setId(1);
+    firstTask.setName("First Task");
+
+    TaskInfo secondTask = new TaskInfo();
+    secondTask.setId(2);
+    secondTask.setName("Second Task");
+
+    // İlk görevi ekle
+    task.addTaskToList(firstTask);
+
+    // Act: İkinci görevi ekle
+    task.addTaskToList(secondTask);
+
+    // Assert
+    assertNotNull("Head should not be null after adding tasks.", task.head);
+    assertNotNull("Tail should not be null after adding tasks.", task.tail);
+    assertEquals("Head should point to the first task.", 1, task.head.task.getId());
+    assertEquals("Tail should point to the second task.", 2, task.tail.task.getId());
+    assertEquals("Next of head should point to second task.", task.head.next.task.getId(), 2);
+    assertEquals("Previous of tail should point to first task.", task.tail.prev.task.getId(), 1);
+    assertNull("Next of tail should be null.", task.tail.next);
+  }
+
+
+  @Test
+  public void testViewDeadlines_EmptyHeap() {
+    // Arrange
+    Task task = new Task(new Scanner(System.in), System.out);
+    task.deadlineHeap = new PriorityQueue<>(); // Boş heap
+
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outContent));
+
+    // Act
+    int result = task.viewDeadlines();
+
+  }
+
+  @Test
+  public void testAssignmentConstructorAndGetters() {
+    // Arrange
+    Assignment assignment = new Assignment("Test Task", 15, 8, 2024);
+
+    // Assert
+    assertEquals("Test Task", assignment.getName());
+    assertEquals(15, assignment.getDay());
+    assertEquals(8, assignment.getMonth());
+    assertEquals(2024, assignment.getYear());
+  }
+
+  @Test
+  public void testAssignmentSetters() {
+    // Arrange
+    Assignment assignment = new Assignment("Task", 1, 1, 2023);
+
+    // Act
+    assignment.setName("Updated Task");
+    assignment.setDay(12);
+    assignment.setMonth(12);
+    assignment.setYear(2025);
+
+    // Assert
+    assertEquals("Updated Task", assignment.getName());
+    assertEquals(12, assignment.getDay());
+    assertEquals(12, assignment.getMonth());
+    assertEquals(2025, assignment.getYear());
+  }
+
+  @Test
+  public void testAssignmentComparison() {
+    // Arrange
+    Assignment earlier = new Assignment("Task 1", 1, 1, 2024);
+    Assignment later = new Assignment("Task 2", 1, 1, 2025);
+
+    // Assert
+    assertTrue(earlier.compareTo(later) < 0); // earlier < later
+    assertTrue(later.compareTo(earlier) > 0); // later > earlier
+    assertEquals(0, earlier.compareTo(new Assignment("Task 3", 1, 1, 2024))); // same date
+  }
+
+  @Test
+  public void testAssignDeadline_InvalidDate() {
+    // Arrange
+    PriorityQueue<Assignment> deadlineHeap = new PriorityQueue<>();
+    String simulatedInput = "Invalid Task\n32 13 2024\n";
+    System.setIn(new ByteArrayInputStream(simulatedInput.getBytes()));
+
+    // Act
+    Assignment.assign_deadline(deadlineHeap);
+
+    // Assert
+    String output = outContent.toString();
+    assertTrue(output.contains("Invalid date! Please enter a valid date."));
+    assertEquals(0, deadlineHeap.size());
+  }
+
+  @Test
+  public void testAssignDeadline_InvalidInputType() {
+    // Arrange
+    PriorityQueue<Assignment> deadlineHeap = new PriorityQueue<>();
+    String simulatedInput = "Task Name\ninvalid invalid invalid\n";
+    System.setIn(new ByteArrayInputStream(simulatedInput.getBytes()));
+
+    // Act
+    Assignment.assign_deadline(deadlineHeap);
+
+    // Assert
+    String output = outContent.toString();
+    assertTrue(output.contains("Invalid input! Please try again."));
+    assertEquals(0, deadlineHeap.size());
+  }
+
+  @Test
+  public void testAssignDeadline_ValidInput() {
+    // Arrange
+    PriorityQueue<Assignment> deadlineHeap = new PriorityQueue<>();
+    String simulatedInput = "Valid Task\n15 08 2024\n";
+    System.setIn(new ByteArrayInputStream(simulatedInput.getBytes()));
+
+    // Act
+    Assignment.assign_deadline(deadlineHeap);
+
+    // Assert
+    String output = outContent.toString();
+    assertTrue(output.contains("Deadline assigned and saved successfully!"));
+    assertEquals(1, deadlineHeap.size());
+
+    Assignment added = deadlineHeap.poll();
+    assertNotNull(added);
+    assertEquals("Valid Task", added.getName());
+    assertEquals(15, added.getDay());
+    assertEquals(8, added.getMonth());
+    assertEquals(2024, added.getYear());
+  }
+
+  @Test
+  public void testWriteToFile() throws IOException {
+    // Arrange
+    String fileName = "test_deadlines.bin";
+    Files.deleteIfExists(Paths.get(fileName));
+    Assignment assignment = new Assignment("File Task", 10, 10, 2024);
+
+    // Act
+    assignment.writeToFile(fileName);
+
+    // Assert
+    assertTrue(Files.exists(Paths.get(fileName)));
+
+    // Dosyadan oku
+    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileName))) {
+      Assignment loadedAssignment = (Assignment) ois.readObject();
+      assertEquals("File Task", loadedAssignment.getName());
+      assertEquals(10, loadedAssignment.getDay());
+      assertEquals(10, loadedAssignment.getMonth());
+      assertEquals(2024, loadedAssignment.getYear());
+    } catch (ClassNotFoundException e) {
+      fail("Class not found during deserialization.");
+    } finally {
+      Files.deleteIfExists(Paths.get(fileName));
+    }
+  }
+
+
+  // Test 4: Boş XOR Linked List'te Gezinme
+  @Test
+  public void testNavigateEmptyXORList() {
+    // Arrange
+    XORLinkedList xorList = new XORLinkedList();
+
+    // Act
+    xorList.navigateXORList();
+
+    // Assert
+    String output = outContent.toString();
+    assertTrue(output.contains("No tasks found in the list."));
+  }
+
+  @Test
+  public void testCreateTaskMenuDependen() {
+    // Arrange
+    String input = "1\na\na\na\n2222 11 12\n1\n1\n\n4\n1\n9\n6\n3\n"; // 4: Görev bağımlılıklarını görüntüleme seçeneği, 1: Görev ID'si
+    InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Kullanıcı girdisini simüle et
+    System.setOut(new PrintStream(outContent)); // Konsol çıktısını yakala
+
+    // Test görev listesini hazırla
+    ArrayList<TaskInfo> testTaskList = new ArrayList<>();
+    TaskInfo task1 = new TaskInfo();
+    task1.setId(1);
+    task1.setName("Sample Task 1");
+    task1.setDescription("Description 1");
+    task1.setCategory("Category 1");
+    task1.setDueDate("2024-12-31");
+    task1.setDependencyCount(2);
+    task1.setDependencies(new int[]{2, 3});
+
+    TaskInfo task2 = new TaskInfo();
+    task2.setId(2);
+    task2.setName("Sample Task 2");
+    task2.setDescription("Description 2");
+
+    TaskInfo task3 = new TaskInfo();
+    task3.setId(3);
+    task3.setName("Sample Task 3");
+    task3.setDescription("Description 3");
+
+    testTaskList.add(task1);
+    testTaskList.add(task2);
+    testTaskList.add(task3);
+
+    Task task = new Task(new Scanner(System.in), System.out);
+    taskList = testTaskList;
+
+    // Act
+    task.createTaskMenu();
+
+    // Cleanup
+    System.setIn(originalIn);
+    System.setOut(originalOut);
+  }
+
+
+  // Test 1: Yaprak Düğüm Oluşturma
+  @Test
+  public void testLeafNodeCreation() {
+    // Arrange
+    BPlusTreeNode leafNode = new BPlusTreeNode(true);
+
+    // Assert
+    assertTrue(leafNode.isLeaf);
+    assertNotNull(leafNode.keys);
+    assertNotNull(leafNode.tasks);
+    assertEquals(0, leafNode.keys.size());
+    assertEquals(0, leafNode.tasks.size());
+    assertNull(leafNode.next);
+  }
+
+  // Test 2: İç Düğüm Oluşturma
+  @Test
+  public void testInternalNodeCreation() {
+    // Arrange
+    BPlusTreeNode internalNode = new BPlusTreeNode(false);
+
+    // Assert
+    assertFalse(internalNode.isLeaf);
+    assertNotNull(internalNode.keys);
+    assertNotNull(internalNode.children);
+    assertEquals(0, internalNode.keys.size());
+    assertEquals(0, internalNode.children.size());
+  }
+
+  // Test 3: Yaprak Düğüme Anahtar ve Görev Ekleme
+  @Test
+  public void testAddKeyAndTaskToLeafNode() {
+    // Arrange
+    BPlusTreeNode leafNode = new BPlusTreeNode(true);
+    ScheduledTask task1 = new ScheduledTask("Task 1", 30, 12,2001);
+    ScheduledTask task2 = new ScheduledTask("Task 2", 29,11,2002);
+
+    // Act
+    leafNode.keys.add(10);
+    leafNode.tasks.add(task1);
+
+    leafNode.keys.add(20);
+    leafNode.tasks.add(task2);
+
+    // Assert
+    assertEquals(2, leafNode.keys.size());
+    assertEquals(2, leafNode.tasks.size());
+    assertEquals(Integer.valueOf(10), leafNode.keys.get(0));
+    assertEquals("Task 1", leafNode.tasks.get(0).getName());
+    assertEquals(Integer.valueOf(20), leafNode.keys.get(1));
+    assertEquals("Task 2", leafNode.tasks.get(1).getName());
+  }
+
+  // Test 4: İç Düğüme Anahtar ve Çocuk Düğüm Ekleme
+  @Test
+  public void testAddKeyAndChildrenToInternalNode() {
+    // Arrange
+    BPlusTreeNode internalNode = new BPlusTreeNode(false);
+    BPlusTreeNode childNode1 = new BPlusTreeNode(true);
+    BPlusTreeNode childNode2 = new BPlusTreeNode(true);
+
+    // Act
+    internalNode.keys.add(15);
+    internalNode.children.add(childNode1);
+    internalNode.children.add(childNode2);
+
+    // Assert
+    assertEquals(1, internalNode.keys.size());
+    assertEquals(2, internalNode.children.size());
+    assertEquals(Integer.valueOf(15), internalNode.keys.get(0));
+    assertSame(childNode1, internalNode.children.get(0));
+    assertSame(childNode2, internalNode.children.get(1));
+  }
+
+  // Test 5: Yaprak Düğümler Arasında Bağlantı Kurma
+  @Test
+  public void testLeafNodeLinking() {
+    // Arrange
+    BPlusTreeNode leafNode1 = new BPlusTreeNode(true);
+    BPlusTreeNode leafNode2 = new BPlusTreeNode(true);
+
+    // Act
+    leafNode1.next = leafNode2;
+
+    // Assert
+    assertSame(leafNode2, leafNode1.next);
+    assertNull(leafNode2.next);
+  }
+
+  // Test 6: Yaprak Düğümler Arasında Gezinme
+  @Test
+  public void testLeafNodeTraversal() {
+    // Arrange
+    BPlusTreeNode leafNode1 = new BPlusTreeNode(true);
+    BPlusTreeNode leafNode2 = new BPlusTreeNode(true);
+    BPlusTreeNode leafNode3 = new BPlusTreeNode(true);
+
+    leafNode1.next = leafNode2;
+    leafNode2.next = leafNode3;
+
+    // Act
+    BPlusTreeNode current = leafNode1;
+    int count = 0;
+    while (current != null) {
+      count++;
+      current = current.next;
+    }
+
+    // Assert
+    assertEquals(3, count);
+  }
+
+
+  // Test 1: Kuyruğa Görev Ekleme
+  @Test
+  public void testEnqueueTask() {
+    // Arrange
+    TaskQueue taskQueue = new TaskQueue();
+    TaskInfo task1 = new TaskInfo();
+    task1.setId(1);
+    task1.setName("Task 1");
+
+    // Act
+    taskQueue.enqueue(task1);
+
+    // Assert
+    assertEquals(1, taskQueue.size());
+    assertFalse(taskQueue.isEmpty());
+  }
+
+  // Test 2: Kuyruktan Görev Çıkarma
+  @Test
+  public void testDequeueTask() {
+    // Arrange
+    TaskQueue taskQueue = new TaskQueue();
+    TaskInfo task1 = new TaskInfo();
+    task1.setId(1);
+    task1.setName("Task 1");
+
+    taskQueue.enqueue(task1);
+
+    // Act
+    TaskInfo dequeuedTask = taskQueue.dequeue();
+
+    // Assert
+    assertEquals("Task 1", dequeuedTask.getName());
+    assertEquals(0, taskQueue.size());
+    assertTrue(taskQueue.isEmpty());
+  }
+
+  // Test 3: Boş Kuyruktan Görev Çıkarma
+  @Test
+  public void testDequeueFromEmptyQueue() {
+    // Arrange
+    TaskQueue taskQueue = new TaskQueue();
+
+    // Act
+    TaskInfo dequeuedTask = taskQueue.dequeue();
+
+    // Assert
+    assertNull(dequeuedTask);
+    assertTrue(taskQueue.isEmpty());
+  }
+
+  // Test 4: Kuyruğun Boş Olup Olmadığını Kontrol Etme
+  @Test
+  public void testIsEmptyQueue() {
+    // Arrange
+    TaskQueue taskQueue = new TaskQueue();
+
+    // Act & Assert
+    assertTrue(taskQueue.isEmpty());
+
+    TaskInfo task = new TaskInfo();
+    taskQueue.enqueue(task);
+
+    assertFalse(taskQueue.isEmpty());
+  }
+
+  // Test 5: Kuyruk Boyutunun Doğru Olup Olmadığını Kontrol Etme
+  @Test
+  public void testQueueSize() {
+    // Arrange
+    TaskQueue taskQueue = new TaskQueue();
+
+    TaskInfo task1 = new TaskInfo();
+    task1.setId(1);
+    task1.setName("Task 1");
+
+    TaskInfo task2 = new TaskInfo();
+    task2.setId(2);
+    task2.setName("Task 2");
+
+    // Act
+    taskQueue.enqueue(task1);
+    taskQueue.enqueue(task2);
+
+    // Assert
+    assertEquals(2, taskQueue.size());
+
+    taskQueue.dequeue();
+    assertEquals(1, taskQueue.size());
+
+    taskQueue.dequeue();
+    assertEquals(0, taskQueue.size());
+  }
+
+  // Test 6: Birden Fazla Görev Ekleme ve Çıkarma
+  @Test
+  public void testEnqueueAndDequeueMultipleTasks() {
+    // Arrange
+    TaskQueue taskQueue = new TaskQueue();
+
+    TaskInfo task1 = new TaskInfo();
+    task1.setId(1);
+    task1.setName("Task 1");
+
+    TaskInfo task2 = new TaskInfo();
+    task2.setId(2);
+    task2.setName("Task 2");
+
+    TaskInfo task3 = new TaskInfo();
+    task3.setId(3);
+    task3.setName("Task 3");
+
+    // Act
+    taskQueue.enqueue(task1);
+    taskQueue.enqueue(task2);
+    taskQueue.enqueue(task3);
+
+    // Assert
+    assertEquals(3, taskQueue.size());
+
+    assertEquals("Task 1", taskQueue.dequeue().getName());
+    assertEquals("Task 2", taskQueue.dequeue().getName());
+    assertEquals("Task 3", taskQueue.dequeue().getName());
+
+    assertEquals(0, taskQueue.size());
+    assertTrue(taskQueue.isEmpty());
+  }
+
+  // Test 1: Ana Menüye Başarıyla Erişim
+  @Test
+  public void testMainMenuAccess() {
+    // Arrange
+    String simulatedInput = "3\n"; // 3 -> Exit seçeneği
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    System.setIn(inputStream);
+
+    // Act
+    taskApp.main(new String[]{});
+
+    // Assert
+    String output = outContent.toString();
+    assertTrue(output.contains("WELCOME TO TASK MANAGER!"));
+    assertTrue(output.contains("1. Login"));
+    assertTrue(output.contains("2. Register"));
+    assertTrue(output.contains("3. Exit Program"));
+  }
+
+
+
+
+  // Test 4: Kullanıcı Kaydı Senaryosu
+  @Test
+  public void testUserRegistrationFlow() {
+    // Arrange
+    String simulatedInput = "2\nJane\nSmith\njane.smith@example.com\nsecurepassword2\n3\n"; // 2 -> Register, ardından kullanıcı bilgileri, ardından çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    System.setIn(inputStream);
+
+    // Act
+    taskApp.main(new String[]{});
+
+  }
+
+
+  // Test 6: Programdan Çıkış
+  @Test
+  public void testExitProgram() {
+    // Arrange
+    String simulatedInput = "3\n"; // Çıkış
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    System.setIn(inputStream);
+
+    // Act
+    taskApp.main(new String[]{});
+
+
+  }
+
 
 
 }

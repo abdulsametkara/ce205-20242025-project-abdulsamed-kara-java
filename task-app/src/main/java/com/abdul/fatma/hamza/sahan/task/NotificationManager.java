@@ -23,49 +23,6 @@ public class NotificationManager {
 
     public boolean isTestMode = false;
 
-
-    /**
-     * @brief Sets a reminder based on user input duration.
-     */
-    public void setReminders() {
-        clearScreen();
-
-        out.println("Enter the reminder duration:");
-        out.print("Days: ");
-        int days = getInput();
-        out.print("Hours: ");
-        int hours = getInput();
-        out.print("Minutes: ");
-        int minutes = getInput();
-        out.print("Seconds: ");
-        int seconds = getInput();
-
-        int totalSeconds = seconds + (minutes * 60) + (hours * 3600) + (days * 86400);
-
-        if (totalSeconds <= 0) {
-            out.println("Invalid duration. Please enter a positive duration.");
-            enterToContinue();
-            return;
-        }
-
-        out.printf("Setting reminder for %d seconds...\n", totalSeconds);
-
-        // Countdown Simulation
-        for (int remaining = totalSeconds; remaining > 0; remaining--) {
-            clearScreen();
-            out.printf("Time remaining: %02d:%02d:%02d:%02d\n",
-                    remaining / 86400,             // Days
-                    (remaining % 86400) / 3600,    // Hours
-                    (remaining % 3600) / 60,       // Minutes
-                    remaining % 60);              // Seconds
-
-            platformSleep(1);
-        }
-
-        out.println("Time's up! Reminder triggered.");
-        enterToContinue();
-    }
-
     /**
      * @brief Configures notification settings.
      */
@@ -117,18 +74,6 @@ public class NotificationManager {
         out.println("Current notification method: " + methodStr);
     }
 
-    /**
-     * @brief Sleeps for the given duration in seconds.
-     *
-     * @param seconds The duration in seconds.
-     */
-    private void platformSleep(int seconds) {
-        try {
-            Thread.sleep(seconds * 1000L); // Milliseconds
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
 
     public void clearScreen() {
         out.print("\033[H\033[2J"); // ANSI escape kodları
