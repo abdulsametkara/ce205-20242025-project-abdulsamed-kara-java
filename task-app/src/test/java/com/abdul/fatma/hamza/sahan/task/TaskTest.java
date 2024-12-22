@@ -16,6 +16,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Scanner;
+import org.junit.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +30,19 @@ import static org.junit.Assert.*;
 
 
 public class TaskTest {
-
+  private XORLinkedList xorLinkedList;
+  private TaskInfo task101;
+  private TaskInfo task202;
+  private TaskInfo task303;
+  private final String testFile = "test_tasks_xor.bin";
+  private BPlusTree bPlusTree;
+  private ScheduledTask task1;
+  private ScheduledTask task2;
+  private ScheduledTask task3;
+  private MinHeap minHeap;
+  private Assignment assignment1;
+  private Assignment assignment2;
+  private Assignment assignment3;
   private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
   private final PrintStream originalOut = System.out;
   private final InputStream originalIn = System.in;
@@ -57,7 +70,40 @@ public class TaskTest {
     deleteFile(userFile);
     createTestTaskFile();
     createTestUserFile();
+    minHeap = new MinHeap();
 
+    assignment1 = new Assignment("Task 1", 1, 1, 2024);
+    assignment2 = new Assignment("Task 2", 5, 1, 2024);
+    assignment3 = new Assignment("Task 3", 10, 1, 2024);
+
+    bPlusTree = new BPlusTree();
+
+    task1 = new ScheduledTask("Task 1", 1, 1, 2024);
+    task2 = new ScheduledTask("Task 2", 5, 1, 2024);
+    task3 = new ScheduledTask("Task 3", 10, 1, 2024);
+
+    xorLinkedList = new XORLinkedList();
+
+    task101 = new TaskInfo();
+    task101.setId(101);
+    task101.setName("Task 101");
+    task101.setDescription("Description 101");
+    task101.setCategory("Category 101");
+    task101.setDueDate("2024-09-15");
+
+    task202 = new TaskInfo();
+    task202.setId(202);
+    task202.setName("Task 202");
+    task202.setDescription("Description 202");
+    task202.setCategory("Category 202");
+    task202.setDueDate("2024-08-20");
+
+    task303 = new TaskInfo();
+    task303.setId(303);
+    task303.setName("Task 303");
+    task303.setDescription("Description 303");
+    task303.setCategory("Category 303");
+    task303.setDueDate("2024-07-10");
   }
 
   @After
@@ -562,7 +608,7 @@ public class TaskTest {
 
     // Act
     task.mainMenu("test_users.bin");
-    
+
   }
   @Test
   public void testAssignDeadlineTest() {
@@ -1801,9 +1847,7 @@ public void testUserOptionsMenu_InvalidChoice() {
   public void testSetReminders() {
     // Arrange
     String simulatedInput = "3\n1\n0\n0\n0\n1\n\n3\n6\n3\n";
-  public void testAlgorithmsMenu() {
     // Arrange
-    String simulatedInput = "1\n4\n\n2\n4\n\n3\n4\n\n4\n4\n\n5\n4\n\n6\n4\n\n7\n4\n\n8\n6\n\n";
     InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
     ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 
@@ -1843,11 +1887,7 @@ public void testUserOptionsMenu_InvalidChoice() {
     Task task = new Task(new Scanner(System.in), System.out);
 
     task.userOptionsMenu();
-  }
 
-
-
-    task.algorithmsMenu();
 
   }
 
@@ -2258,7 +2298,309 @@ public void testUserOptionsMenu_InvalidChoice() {
     Task.computePrefixTable(pattern, prefixTable);
 
   }
-  
 
+  @Test
+  public void testCreateTaskMenuDependen() {
+    // Arrange
+    String input = "1\na\na\na\n2222 11 12\n1\n1\n\n4\n1\n9\n6\n3\n"; // 4: Görev bağımlılıklarını görüntüleme seçeneği, 1: Görev ID'si
+    InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Kullanıcı girdisini simüle et
+    System.setOut(new PrintStream(outContent)); // Konsol çıktısını yakala
+
+    // Test görev listesini hazırla
+    ArrayList<TaskInfo> testTaskList = new ArrayList<>();
+    TaskInfo task1 = new TaskInfo();
+    task1.setId(1);
+    task1.setName("Sample Task 1");
+    task1.setDescription("Description 1");
+    task1.setCategory("Category 1");
+    task1.setDueDate("2024-12-31");
+    task1.setDependencyCount(2);
+    task1.setDependencies(new int[]{2, 3});
+
+    TaskInfo task2 = new TaskInfo();
+    task2.setId(2);
+    task2.setName("Sample Task 2");
+    task2.setDescription("Description 2");
+
+    TaskInfo task3 = new TaskInfo();
+    task3.setId(3);
+    task3.setName("Sample Task 3");
+    task3.setDescription("Description 3");
+
+    testTaskList.add(task1);
+    testTaskList.add(task2);
+    testTaskList.add(task3);
+
+    Task task = new Task(new Scanner(System.in), System.out);
+    taskList = testTaskList;
+
+    // Act
+    task.createTaskMenu();
+
+    // Cleanup
+    System.setIn(originalIn);
+    System.setOut(originalOut);
+  }
+
+  @Test
+  public void testInsert() {
+    minHeap.insert(assignment1);
+    minHeap.insert(assignment2);
+    minHeap.insert(assignment3);
+
+    assertFalse(minHeap.isEmpty());
+  }
+
+  /**
+   * Test: extractMin
+   * Kontrol: En erken tarihe sahip görevin doğru şekilde çıkarıldığını doğrula.
+   */
+  @Test
+  public void testExtractMin() {
+    minHeap.insert(assignment3); // 10/01/2024
+    minHeap.insert(assignment1); // 01/01/2024
+    minHeap.insert(assignment2); // 05/01/2024
+
+    Assignment min = minHeap.extractMin();
+    assertEquals("Task 1", min.getName());
+    assertEquals(1, min.getDay());
+    assertEquals(1, min.getMonth());
+    assertEquals(2024, min.getYear());
+  }
+
+  /**
+   * Test: isEmpty
+   * Kontrol: Heap boşken isEmpty() metodunun doğru sonuç döndürdüğünü doğrula.
+   */
+  @Test
+  public void testIsEmpty() {
+    assertTrue(minHeap.isEmpty());
+    minHeap.insert(assignment1);
+    assertFalse(minHeap.isEmpty());
+  }
+
+  /**
+   * Test: printHeap
+   * Kontrol: printHeap çıktısının doğru formatta olduğunu doğrula.
+   */
+  @Test
+  public void testPrintHeap() {
+    minHeap.insert(assignment1);
+    minHeap.insert(assignment2);
+    minHeap.insert(assignment3);
+
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outContent));
+
+    minHeap.printHeap();
+
+    String output = outContent.toString();
+    assertTrue(output.contains("Task Name: Task 1, Deadline: 1/1/2024"));
+    assertTrue(output.contains("Task Name: Task 2, Deadline: 5/1/2024"));
+    assertTrue(output.contains("Task Name: Task 3, Deadline: 10/1/2024"));
+
+    System.setOut(System.out);
+  }
+
+  /**
+   * Test: extractMin - Empty Heap
+   * Kontrol: Boş heap'ten eleman çıkarılmaya çalışıldığında null döndüğünü doğrula.
+   */
+  @Test
+  public void testExtractMin_EmptyHeap() {
+    Assignment min = minHeap.extractMin();
+    assertNull(min);
+  }
+
+  /**
+   * Test: MinHeap Sıralama
+   * Kontrol: En küçük tarihli görevin her zaman en üstte olduğunu doğrula.
+   */
+  @Test
+  public void testMinHeapOrdering() {
+    minHeap.insert(assignment2); // 05/01/2024
+    minHeap.insert(assignment3); // 10/01/2024
+    minHeap.insert(assignment1); // 01/01/2024
+
+    Assignment first = minHeap.extractMin();
+    assertEquals("Task 1", first.getName());
+
+    Assignment second = minHeap.extractMin();
+    assertEquals("Task 2", second.getName());
+
+    Assignment third = minHeap.extractMin();
+    assertEquals("Task 3", third.getName());
+  }
+
+  @Test
+  public void testGetDateKey() {
+    int key = bPlusTree.getDateKey(1, 1, 2024);
+    assertEquals(20240101, key);
+  }
+
+  /**
+   * Test: insertInLeaf
+   * Kontrol: Görevlerin doğru sırayla yaprak düğüme eklendiğini doğrula.
+   */
+  @Test
+  public void testInsertInLeaf() {
+    BPlusTreeNode leaf = new BPlusTreeNode(true);
+
+    int key1 = bPlusTree.getDateKey(1, 1, 2024);
+    int key2 = bPlusTree.getDateKey(5, 1, 2024);
+
+    bPlusTree.insertInLeaf(leaf, key1, task1);
+    bPlusTree.insertInLeaf(leaf, key2, task2);
+
+    assertEquals(2, leaf.keys.size());
+    assertEquals(20240101, (int) leaf.keys.get(0));
+    assertEquals(20240105, (int) leaf.keys.get(1));
+    assertEquals("Task 1", leaf.tasks.get(0).getName());
+    assertEquals("Task 2", leaf.tasks.get(1).getName());
+  }
+
+  /**
+   * Test: insertInBPlusTree
+   * Kontrol: Görevlerin ağaca doğru şekilde eklendiğini doğrula.
+   */
+  @Test
+  public void testInsertInBPlusTree() {
+    bPlusTree.insertInBPlusTree(task1);
+    bPlusTree.insertInBPlusTree(task2);
+    bPlusTree.insertInBPlusTree(task3);
+
+    assertEquals(3, bPlusTree.root.keys.size());
+    assertEquals(20240101, (int) bPlusTree.root.keys.get(0));
+    assertEquals(20240105, (int) bPlusTree.root.keys.get(1));
+    assertEquals(20240110, (int) bPlusTree.root.keys.get(2));
+  }
+
+  /**
+   * Test: searchInDateRange
+   * Kontrol: Belirli bir tarih aralığında doğru görevlerin döndüğünü doğrula.
+   */
+  @Test
+  public void testSearchInDateRange() {
+    bPlusTree.insertInBPlusTree(task1);
+    bPlusTree.insertInBPlusTree(task2);
+    bPlusTree.insertInBPlusTree(task3);
+
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outputStream));
+
+    bPlusTree.searchInDateRange(bPlusTree.root, 20240101, 20240105);
+
+    String output = outputStream.toString();
+    assertTrue(output.contains("Task: Task 1"));
+    assertTrue(output.contains("Task: Task 2"));
+    assertFalse(output.contains("Task: Task 3"));
+
+    System.setOut(System.out);
+  }
+
+  /**
+   * Test: viewDeadlinesInRange
+   * Kontrol: Kullanıcı girdisi ile tarih aralığında görevlerin doğru görüntülendiğini doğrula.
+   */
+  @Test
+  public void testViewDeadlinesInRange() {
+    bPlusTree.insertInBPlusTree(task1);
+    bPlusTree.insertInBPlusTree(task2);
+    bPlusTree.insertInBPlusTree(task3);
+
+    String input = "1 1 2024\n5 1 2024\n";
+    InputStream in = new ByteArrayInputStream(input.getBytes());
+    System.setIn(in);
+
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outputStream));
+
+    bPlusTree.viewDeadlinesInRange();
+
+    String output = outputStream.toString();
+    assertTrue(output.contains("Tasks between 01/01/2024 and 05/01/2024"));
+    assertTrue(output.contains("Task: Task 1"));
+    assertTrue(output.contains("Task: Task 2"));
+    assertFalse(output.contains("Task: Task 3"));
+
+    System.setIn(System.in);
+    System.setOut(System.out);
+  }
+
+  /**
+   * Test: insertInBPlusTree - Node Split Uyarısı
+   * Kontrol: Maksimum anahtar sınırına ulaşıldığında doğru uyarı verilip verilmediğini doğrula.
+   */
+  @Test
+  public void testNodeSplitRequired() {
+    ScheduledTask task4 = new ScheduledTask("Task 4", 15, 1, 2024);
+
+    bPlusTree.insertInBPlusTree(task1);
+    bPlusTree.insertInBPlusTree(task2);
+    bPlusTree.insertInBPlusTree(task3);
+    bPlusTree.insertInBPlusTree(task4);
+
+    String output = new String(outContent.toByteArray());
+    assertTrue(output.contains("Node splitting required. Implement split logic here."));
+  }
+
+  
+  @Test
+  public void testNavigateXORList() {
+    xorLinkedList.addTaskToXORList(task101);
+    xorLinkedList.addTaskToXORList(task202);
+    xorLinkedList.addTaskToXORList(task303);
+
+    String input = "1\n1\n2\n2\n0\n"; // İleri -> İleri -> Geri -> Geri -> Çıkış
+    InputStream in = new ByteArrayInputStream(input.getBytes());
+    System.setIn(in);
+
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outContent));
+
+    xorLinkedList.navigateXORList();
+
+
+
+    System.setIn(System.in);
+    System.setOut(System.out);
+  }
+
+  /**
+   * Test: navigateXORList - Empty List
+   * Kontrol: Boş XOR bağlı liste üzerinde gezinme işlemi doğru uyarı döndürüyor mu.
+   */
+  @Test
+  public void testNavigateEmptyXORList() {
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outContent));
+
+    xorLinkedList.navigateXORList();
+
+    String output = outContent.toString();
+    assertTrue(output.contains("No tasks found in the list."));
+
+    System.setOut(System.out);
+  }
+
+  /**
+   * Test: loadTasksToXORList - Invalid File
+   * Kontrol: Geçersiz dosya adıyla yükleme işlemi hata döndürüyor mu.
+   */
+  @Test
+  public void testLoadTasksToXORListInvalidFile() {
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outContent));
+
+    xorLinkedList.loadTasksToXORList("invalid_file.bin");
+
+    String output = outContent.toString();
+    assertTrue(output.contains("Error loading tasks"));
+
+    System.setOut(System.out);
+  }
 
 }
