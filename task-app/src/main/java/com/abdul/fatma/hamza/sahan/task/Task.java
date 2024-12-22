@@ -30,10 +30,10 @@ public class Task {
     private static ArrayList<TaskInfo> taskList = new ArrayList<>();
     private static int taskCount = 0;  // Global olarak tanımlandı
     private static final int MAX_TASKS = 100;
-    private static TaskNode head = null;
-    private static TaskNode tail = null;
+    public static TaskNode head = null;
+    public static TaskNode tail = null;
     private static XORLinkedList xorLinkedList = new XORLinkedList();
-    private PriorityQueue<Assignment> deadlineHeap = new PriorityQueue<>();
+    public PriorityQueue<Assignment> deadlineHeap = new PriorityQueue<>();
     private static final int OVERFLOW_SIZE = 20;
     private static ArrayList<User> overflowArea = new ArrayList<>(OVERFLOW_SIZE);
 
@@ -1122,6 +1122,7 @@ public class Task {
 
         // Geçici heap oluşturmak için mevcut heap'i kopyalıyoruz
         PriorityQueue<Assignment> tempHeap = new PriorityQueue<>(deadlineHeap);
+
 
         int taskCount = 0;
         while (!tempHeap.isEmpty()) {
