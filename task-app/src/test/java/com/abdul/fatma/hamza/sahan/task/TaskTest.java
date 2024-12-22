@@ -14,6 +14,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Scanner;
 import org.junit.After;
 import org.junit.Before;
@@ -505,7 +506,7 @@ public class TaskTest {
   @Test
   public void testMainMenu_ValidInputs() {
     // Arrange
-    String simulatedInput = "1\njohn.doe@example.com\nsecurepassword1\n6\n3\n";
+    String simulatedInput = "2\nfatma\nakbas\n12\n12\n1\n12\n12\n6\n3\n";
     InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
     ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 
@@ -1800,6 +1801,9 @@ public void testUserOptionsMenu_InvalidChoice() {
   public void testSetReminders() {
     // Arrange
     String simulatedInput = "3\n1\n0\n0\n0\n1\n\n3\n6\n3\n";
+  public void testAlgorithmsMenu() {
+    // Arrange
+    String simulatedInput = "1\n4\n\n2\n4\n\n3\n4\n\n4\n4\n\n5\n4\n\n6\n4\n\n7\n4\n\n8\n6\n\n";
     InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
     ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 
@@ -1843,6 +1847,418 @@ public void testUserOptionsMenu_InvalidChoice() {
 
 
 
+    task.algorithmsMenu();
+
+  }
+
+  @Test
+  public void testLoginUser_IncorrectEmailOrPassword() {
+    // Arrange
+    String userFilePath = "test_users.bin";
+    String huffmanFilePath = "user.huf";
+
+    // Test için geçersiz kullanıcı oluştur
+    User loginUser = new User();
+    loginUser.setEmail("wrong.email@example.com");
+    loginUser.setPassword("wrongpassword");
+
+    // Kullanıcı dosyası oluştur
+    try (RandomAccessFile raf = new RandomAccessFile(userFilePath, "rw")) {
+      raf.writeInt(1); // Kullanıcı sayısı: 1
+
+      User validUser = new User();
+      validUser.setId(1);
+      validUser.setName("Valid");
+      validUser.setSurname("User");
+      validUser.setEmail("valid.email@example.com");
+      validUser.setPassword("validpassword");
+      validUser.writeToFile(raf);
+    } catch (IOException e) {
+      fail("Failed to set up user file: " + e.getMessage());
+    }
+
+    // Huffman dosyasını oluştur
+    try (DataOutputStream huffDos = new DataOutputStream(new FileOutputStream(huffmanFilePath))) {
+      String encodedEmail = HuffmanCoding.huffmanEncode("valid.email@example.com");
+      String encodedPassword = HuffmanCoding.huffmanEncode("validpassword");
+
+      huffDos.writeInt(1); // ID
+      huffDos.writeInt(encodedEmail.length());
+      huffDos.writeBytes(encodedEmail);
+      huffDos.writeInt(encodedPassword.length());
+      huffDos.writeBytes(encodedPassword);
+    } catch (IOException e) {
+      fail("Failed to set up Huffman file: " + e.getMessage());
+    }
+
+    // Çıktıyı yakalamak için
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outContent));
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    int result = task.loginUser(loginUser, userFilePath);
+
+    // Assert
+    String output = outContent.toString();
+    assertEquals(0, result); // Hatalı giriş bekleniyor
+    assertTrue(output.contains("ERROR: Incorrect email or password."));
+
+    // Temizlik
+    System.setOut(System.out);
+    new File(userFilePath).delete();
+    new File(huffmanFilePath).delete();
+  }
+
+  @Test
+  public void testSearchUserInHashTable_UserFound() {
+    // Arrange
+    String testEmail = "test.user@example.com";
+    String testPassword = "testpassword";
+
+    User testUser = new User();
+    testUser.setId(1);
+    testUser.setName("Test");
+    testUser.setSurname("User");
+    testUser.setEmail(testEmail);
+    testUser.setPassword(testPassword);
+
+    int index = Task.hashFunction(testEmail);
+
+    if (Task.hashTable[index] == null) {
+      Task.hashTable[index] = new LinkedList<>();
+    }
+    Task.hashTable[index].add(testUser);
+
+    // Act
+    User result = Task.searchUserInHashTable(testEmail, testPassword);
+
+    // Assert
+    assertNotNull("User should be found in the hash table", result);
+    assertEquals("Emails should match", testEmail, result.getEmail());
+    assertEquals("Passwords should match", testPassword, result.getPassword());
+  }
+
+  @Test
+  public void testSearchUserInHashTable_UserNotFound() {
+    // Arrange
+    String testEmail = "nonexistent.user@example.com";
+    String testPassword = "wrongpassword";
+
+    // Act
+    User result = Task.searchUserInHashTable(testEmail, testPassword);
+
+    // Assert
+    assertNull("User should not be found in the hash table", result);
+  }
+
+  @Test
+  public void testSearchUserInHashTable_EmptyHashTable() {
+    // Arrange
+    String testEmail = "empty.table@example.com";
+    String testPassword = "emptypassword";
+
+    // Hash tablosunu temizle
+    for (int i = 0; i < Task.hashTable.length; i++) {
+      Task.hashTable[i] = null;
+    }
+
+    // Act
+    User result = Task.searchUserInHashTable(testEmail, testPassword);
+
+    // Assert
+    assertNull("User should not be found in an empty hash table", result);
+  }
+
+  @Test
+  public void testRegisterUser_UserAlreadyExists() {
+    // Arrange
+    String pathFileUser = "test_users.bin";
+    File file = new File(pathFileUser);
+
+    // Örnek kullanıcı oluştur
+    User existingUser = new User();
+    existingUser.setId(1);
+    existingUser.setName("Test");
+    existingUser.setSurname("User");
+    existingUser.setEmail("test.user@example.com");
+    existingUser.setPassword("password123");
+
+    User newUser = new User();
+    newUser.setId(2);
+    newUser.setName("Test");
+    newUser.setSurname("User");
+    newUser.setEmail("test.user@example.com"); // Aynı email
+    newUser.setPassword("password123");
+
+    try {
+      // Test dosyasını oluştur ve mevcut kullanıcıyı yaz
+      try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
+        raf.writeInt(1); // Kullanıcı sayısı
+
+        // Mevcut kullanıcıyı dosyaya yaz
+        existingUser.writeToFile(raf);
+      }
+
+      // Kullanıcıyı hash tablosuna ekle
+      Task.insertUserToHashTable(existingUser);
+
+      // Act
+      Task task = new Task(new Scanner(System.in), System.out);
+      int result = task.registerUser(newUser, pathFileUser);
+
+      // Assert
+      assertEquals(0, result); // Kullanıcı zaten var
+      String output = outContent.toString();
+      assertTrue(output.contains("User already exists."));
+
+    } catch (IOException e) {
+      fail("Test setup failed: " + e.getMessage());
+    } finally {
+      // Test dosyasını temizle
+      file.delete();
+    }
+  }
+
+  @Test
+  public void testRegisterUser_FileDoesNotExist() {
+    // Arrange
+    String pathFileUser = "non_existing_users.bin";
+    File file = new File(pathFileUser);
+
+    if (file.exists()) {
+      file.delete();
+    }
+
+    User newUser = new User();
+    newUser.setId(1);
+    newUser.setName("New");
+    newUser.setSurname("User");
+    newUser.setEmail("new.user@example.com");
+    newUser.setPassword("password123");
+
+    // Act
+    Task task = new Task(new Scanner(System.in), System.out);
+    int result = task.registerUser(newUser, pathFileUser);
+
+    // Assert
+    assertEquals(1, result); // Kullanıcı başarıyla kaydedildi
+    assertTrue(file.exists()); // Dosya oluşturulmuş olmalı
+
+    // Cleanup
+    file.delete();
+  }
+
+  @Test
+  public void testRegisterUser_EmptyFile() {
+    // Arrange
+    String pathFileUser = "empty_users.bin";
+    File file = new File(pathFileUser);
+
+    try {
+      if (file.exists()) {
+        file.delete();
+      }
+      file.createNewFile();
+
+      User newUser = new User();
+      newUser.setId(1);
+      newUser.setName("New");
+      newUser.setSurname("User");
+      newUser.setEmail("new.user@example.com");
+      newUser.setPassword("password123");
+
+      // Act
+      Task task = new Task(new Scanner(System.in), System.out);
+      int result = task.registerUser(newUser, pathFileUser);
+
+
+
+    } catch (IOException e) {
+      fail("Test setup failed: " + e.getMessage());
+    } finally {
+      // Cleanup
+      file.delete();
+    }
+  }
+
+  @Test
+  public void testAddTaskToList_SingleTask() {
+    // Arrange
+    TaskInfo newTask = new TaskInfo();
+    newTask.setId(1);
+    newTask.setName("Test Task");
+    newTask.setDescription("This is a test task");
+    newTask.setCategory("Testing");
+    newTask.setDueDate("2024-12-31");
+
+    DoubleLinkedList taskList = new DoubleLinkedList();
+
+    // Act
+    taskList.addTaskToLinkedList(newTask);
+
+  }
+
+  @Test
+  public void testAddTaskToList_MultipleTasks() {
+    // Arrange
+    TaskInfo task1 = new TaskInfo();
+    task1.setId(1);
+    task1.setName("Task 1");
+
+    TaskInfo task2 = new TaskInfo();
+    task2.setId(2);
+    task2.setName("Task 2");
+
+    DoubleLinkedList taskList = new DoubleLinkedList();
+
+    // Act
+    taskList.addTaskToLinkedList(task1);
+    taskList.addTaskToLinkedList(task2);
+
+  }
+
+  @Test
+  public void testPrintDependenciesUtil_WithValidDependencies() {
+    // Arrange
+    ArrayList<TaskInfo> taskList = new ArrayList<>();
+
+    TaskInfo task1 = new TaskInfo();
+    task1.setId(1);
+    task1.setDependencies(new int[]{2, 3});
+
+    TaskInfo task2 = new TaskInfo();
+    task2.setId(2);
+    task2.setDependencies(new int[]{4});
+
+    TaskInfo task3 = new TaskInfo();
+    task3.setId(3);
+    task3.setDependencies(new int[]{0}); // Bağımlılık yok
+
+    TaskInfo task4 = new TaskInfo();
+    task4.setId(4);
+    task4.setDependencies(new int[]{0}); // Bağımlılık yok
+
+    taskList.add(task1);
+    taskList.add(task2);
+    taskList.add(task3);
+    taskList.add(task4);
+
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outContent));
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    boolean[] visited = new boolean[taskList.size()];
+
+    // Act
+    task.printDependencies(taskList, 1);
+
+  }
+
+  @Test
+  public void testPrintDependenciesUtil_WithNoDependencies() {
+    // Arrange
+    ArrayList<TaskInfo> taskList = new ArrayList<>();
+
+    TaskInfo task1 = new TaskInfo();
+    task1.setId(1);
+    task1.setDependencies(new int[]{0}); // Bağımlılık yok
+
+    taskList.add(task1);
+
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outContent));
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    boolean[] visited = new boolean[taskList.size()];
+
+    // Act
+    task.printDependencies(taskList, 1);
+
+    // Assert
+    String output = outContent.toString();
+    assertFalse(output.contains("depends on Task"));
+  }
+
+  @Test
+  public void testPrintDependenciesUtil_WithCircularDependency() {
+    // Arrange
+    ArrayList<TaskInfo> taskList = new ArrayList<>();
+
+    TaskInfo task1 = new TaskInfo();
+    task1.setId(1);
+    task1.setDependencies(new int[]{2});
+
+    TaskInfo task2 = new TaskInfo();
+    task2.setId(2);
+    task2.setDependencies(new int[]{1}); // Döngü var: 1 -> 2 -> 1
+
+    taskList.add(task1);
+    taskList.add(task2);
+
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outContent));
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    boolean[] visited = new boolean[taskList.size()];
+
+    // Act
+    task.printDependencies(taskList, 1);
+
+  }
+
+  @Test
+  public void testComputePrefixTable_WithValidPattern() {
+    // Arrange
+    String pattern = "ABABCABAA";
+    int[] expectedPrefixTable = {0, 0, 1, 2, 0, 1, 2, 3, 1};
+    int[] prefixTable = new int[pattern.length()];
+
+    // Act
+    Task.computePrefixTable(pattern, prefixTable);
+
+  }
+
+  @Test
+  public void testComputePrefixTable_WithRepeatedCharacters() {
+    // Arrange
+    String pattern = "AAAA";
+    int[] expectedPrefixTable = {0, 1, 2, 3};
+    int[] prefixTable = new int[pattern.length()];
+
+    // Act
+    Task.computePrefixTable(pattern, prefixTable);
+
+  }
+
+  @Test
+  public void testComputePrefixTable_WithNoRepeatingPattern() {
+    // Arrange
+    String pattern = "ABCDE";
+    int[] expectedPrefixTable = {0, 0, 0, 0, 0};
+    int[] prefixTable = new int[pattern.length()];
+
+    // Act
+    Task.computePrefixTable(pattern, prefixTable);
+
+  }
+
+  @Test
+  public void testComputePrefixTable_WithSingleCharacter() {
+    // Arrange
+    String pattern = "A";
+    int[] expectedPrefixTable = {0};
+    int[] prefixTable = new int[pattern.length()];
+
+    // Act
+    Task.computePrefixTable(pattern, prefixTable);
+
+  }
+  
 
 
 }
