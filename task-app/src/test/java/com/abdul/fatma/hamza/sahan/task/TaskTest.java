@@ -127,6 +127,8 @@ public class TaskTest {
     }
   }
 
+
+
   @Test
   public void testTaskFileCreation() throws IOException {
     // Arrange
@@ -414,7 +416,7 @@ public class TaskTest {
   @Test
   public void testCreateTaskMenuDependencies() {
     // Arrange
-    String input = "4\n1\n\n9\n6\n3\n";
+    String input = "1\na\na\na\n1000 10 10\n1\n4\n1\n\n9\n6\n3\n";
     InputStream inputStream = new ByteArrayInputStream(input.getBytes());
     ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 
@@ -1122,7 +1124,7 @@ public void testUserOptionsMenu_InvalidChoice() {
 
   @Test
   public void testCategorizeTask_FoundCategory() {
-    String simulatedInput = "Category 1\n\n\n9\n6\n3\n"; // 99 -> Invalid choice, 3 -> Exit Program
+    String simulatedInput = "1\ndsa\ndsa\ndsa\n1000 10 10\n1\n4\n\n3\ndsa\n\n\n9\n6\n3\n";
     InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
     ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 
@@ -1132,7 +1134,7 @@ public void testUserOptionsMenu_InvalidChoice() {
     Task task = new Task(new Scanner(System.in), System.out);
 
     // Act
-    task.categorizeTask(taskList);
+    task.createTaskMenu();
   }
 
   @Test
@@ -1702,9 +1704,9 @@ public void testUserOptionsMenu_InvalidChoice() {
   }
 
   @Test
-  public void testMarkTaskImportance() {
+  public void testMarkTaskImportanceHigh() {
     // Arrange
-    String simulatedInput = "1\nTask 1\n1\n\n1\nTask 1\n2\n\n1\nTask 1\n3\n\n3\n6\n3\n";
+    String simulatedInput = "1\n1\na\na\na\n1000 10 10\n1\n4\n\n9\n4\n1\na\n1\n\n3\n6\n3\n";
     InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
     ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 
@@ -1713,14 +1715,76 @@ public void testUserOptionsMenu_InvalidChoice() {
 
     Task task = new Task(new Scanner(System.in), System.out);
 
-    task.taskPrioritizationMenu();
+    task.userOptionsMenu();
+  }
 
+
+  @Test
+  public void testMarkTaskImportanceTaskNotFound() {
+    // Arrange
+    String simulatedInput = "1\n1\na\na\na\n1000 10 10\n1\n4\n\n9\n4\n1\nasd\n\n3\n6\n3\n";
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    task.userOptionsMenu();
+  }
+
+  @Test
+  public void testMarkTaskImportanceInvalidImportanceID() {
+    // Arrange
+    String simulatedInput = "1\n1\na\na\na\n1000 10 10\n1\n4\n\n9\n4\n1\na\n5\n\n1\n\n3\n6\n3\n";
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    task.userOptionsMenu();
+  }
+
+
+
+  @Test
+  public void testMarkTaskImportanceMedium() {
+    // Arrange
+    String simulatedInput = "1\n1\nb\nb\nb\n1100 11 11\n1\n4\n\n9\n4\n1\nb\n2\n\n3\n6\n3\n";
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    task.userOptionsMenu();
+  }
+
+  @Test
+  public void testMarkTaskImportanceLow() {
+    // Arrange
+    String simulatedInput = "1\n1\nc\nc\nc\n1110 9 10\n1\n4\n\n9\n4\n1\nc\n3\n\n3\n6\n3\n";
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    task.userOptionsMenu();
   }
 
   @Test
   public void testImportanceOrdering() {
     // Arrange
-    String simulatedInput = "1\n2\n\n3\n6\n3\n";
+    String simulatedInput = "1\n1\na\na\na\n1000 10 10\n1\n4\n\n9\n4\n2\n\n\n3\n6\n3\n";
     InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
     ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 
@@ -1729,11 +1793,14 @@ public void testUserOptionsMenu_InvalidChoice() {
 
     Task task = new Task(new Scanner(System.in), System.out);
 
-    task.taskPrioritizationMenu();
+    task.userOptionsMenu();
 
   }
 
   @Test
+  public void testSetReminders() {
+    // Arrange
+    String simulatedInput = "3\n1\n0\n0\n0\n1\n\n3\n6\n3\n";
   public void testAlgorithmsMenu() {
     // Arrange
     String simulatedInput = "1\n4\n\n2\n4\n\n3\n4\n\n4\n4\n\n5\n4\n\n6\n4\n\n7\n4\n\n8\n6\n\n";
@@ -1744,6 +1811,41 @@ public void testUserOptionsMenu_InvalidChoice() {
     System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
 
     Task task = new Task(new Scanner(System.in), System.out);
+
+    task.userOptionsMenu();
+  }
+
+  @Test
+  public void testNotificationSettings() {
+    // Arrange
+    String simulatedInput = "3\n2\n1\n\n2\n2\n\n2\n3\n\n3\n6\n3\n";
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    task.userOptionsMenu();
+  }
+
+  @Test
+  public void testSetRemindersInvalid() {
+    // Arrange
+    String simulatedInput = "3\n1\n-2\n-2\n-2\n-2\n\n3\n6\n3\n";
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    task.userOptionsMenu();
+  }
+
+
 
     task.algorithmsMenu();
 
