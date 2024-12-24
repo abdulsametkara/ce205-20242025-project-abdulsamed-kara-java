@@ -1,16 +1,18 @@
 /**
  * @file Task.java
- * @brief The Task class handles task management and user interactions.
+ * @brief Task class for a task management system.
  *
- * This class provides tools for managing user input, notifications,
- * and basic task-related operations.
+ * This class provides core functionality for creating, managing, and analyzing tasks.
+ * It allows users to categorize tasks, set priorities, add reminders, and perform
+ * algorithmic analyses on tasks.
  *
- * @author [Author Name]
- * @date [Date]
+ * @author User
+ * @date 2024-12-24
  * @version 1.0
  */
 
 package com.abdul.fatma.hamza.sahan.task;
+
 import java.util.Scanner;
 import java.io.*;
 import java.util.ArrayList;
@@ -32,14 +34,32 @@ public class Task {
     public Scanner scanner;
     /** PrintStream object for output. */
     public PrintStream out;
+    /**
+     * @brief Manages notification settings and reminders for tasks.
+     *
+     * The `notificationManager` field handles user notification preferences, including
+     * delivery methods (e.g., SMS, Email, Phone Call) and reminder scheduling.
+     * It is used to configure, send, and manage task notifications.
+     */
     private NotificationManager notificationManager;
 
+
+    /**
+     * @brief Constructs a `Task` object with input and output streams.
+     *
+     * Initializes a `Task` object using the provided `Scanner` for user input
+     * and `PrintStream` for output display. It also initializes the
+     * `NotificationManager` for managing task-related notifications.
+     *
+     * @param scanner A `Scanner` object for reading user input.
+     * @param out A `PrintStream` object for displaying output to the user.
+     */
     public Task(Scanner scanner, PrintStream out) {
         this.scanner = scanner;
         this.out = out;
         this.notificationManager = new NotificationManager(scanner, out);
-
     }
+
 
     /**
      * @brief Test mode flag.
@@ -50,17 +70,82 @@ public class Task {
 
 
 
-    public static final int TABLE_SIZE = 100;  // Hash tablosunun boyutu
+    /** @brief The size of the hash table. */
+    public static final int TABLE_SIZE = 100;
+
+    /**
+     * @brief Hash table for storing users.
+     *
+     * An array of linked lists used to store `User` objects in hash table format.
+     * Each index of the array represents a bucket for handling hash collisions.
+     */
     public static LinkedList<User>[] hashTable = new LinkedList[TABLE_SIZE];
+
+    /**
+     * @brief List of tasks in the system.
+     *
+     * Stores task details in an `ArrayList` for quick access and management.
+     */
     private static ArrayList<TaskInfo> taskList = new ArrayList<>();
-    private static int taskCount = 0;  // Global olarak tanımlandı
+
+    /**
+     * @brief The current count of tasks in the system.
+     *
+     * Tracks the total number of tasks currently stored.
+     */
+    private static int taskCount = 0;
+
+    /**
+     * @brief The maximum number of tasks allowed in the system.
+     *
+     * Defines an upper limit on the number of tasks that can be managed simultaneously.
+     */
     private static final int MAX_TASKS = 100;
+
+    /**
+     * @brief Head node of a doubly linked list of tasks.
+     *
+     * Points to the first node in a doubly linked list of tasks.
+     */
     public static TaskNode head = null;
+
+    /**
+     * @brief Tail node of a doubly linked list of tasks.
+     *
+     * Points to the last node in a doubly linked list of tasks.
+     */
     public static TaskNode tail = null;
+
+    /**
+     * @brief XOR Linked List for task management.
+     *
+     * An `XORLinkedList` instance for efficient memory usage when managing tasks
+     * in a doubly linked list structure.
+     */
     private static XORLinkedList xorLinkedList = new XORLinkedList();
+
+    /**
+     * @brief Min-heap for managing task deadlines.
+     *
+     * A priority queue (`MinHeap`) to prioritize tasks based on their deadlines.
+     */
     public PriorityQueue<Assignment> deadlineHeap = new PriorityQueue<>();
+
+    /**
+     * @brief Overflow area for user storage.
+     *
+     * An `ArrayList` used as an overflow area when the hash table exceeds its capacity.
+     * Supports up to `OVERFLOW_SIZE` additional users.
+     */
     private static final int OVERFLOW_SIZE = 20;
+
+    /**
+     * @brief List of overflow users.
+     *
+     * Stores `User` objects that cannot fit into the main hash table.
+     */
     private static ArrayList<User> overflowArea = new ArrayList<>(OVERFLOW_SIZE);
+
 
 
 
@@ -1224,19 +1309,29 @@ public class Task {
         enterToContinue();
     }
 
+    /**
+     * @brief Generates a new unique task ID.
+     *
+     * This method iterates through the provided task list and determines
+     * the maximum task ID. It then returns a new unique ID by incrementing
+     * the maximum found ID by one.
+     *
+     * @param taskList An `ArrayList` of `TaskInfo` objects representing the current tasks.
+     * @return A new unique task ID, which is one greater than the maximum existing task ID.
+     */
     public static int getNewTaskId(ArrayList<TaskInfo> taskList) {
         int maxId = 0;
 
-
+        // Iterate through the task list to find the maximum ID
         for (TaskInfo task : taskList) {
             if (task.getId() > maxId) {
                 maxId = task.getId();
             }
         }
 
-
-        return maxId + 1;
+        return maxId + 1; // Return a new unique ID
     }
+
 
     /**
      * @brief Displays tasks filtered by a specific category.
@@ -2052,8 +2147,6 @@ public class Task {
      * This method allows users to search for a specific user by providing their email and password.
      * The search begins at the computed hash index and examines all linked entries at that index.
      *
-     * @param email The email of the user to search for.
-     * @param password The password of the user to validate the search.
      *
      * @note If the user is found, their name and surname are displayed.
      * @note If the user is not found, an appropriate error message is shown.
@@ -2079,7 +2172,7 @@ public class Task {
         if (hashTable[index] != null) {
             for (User u : hashTable[index]) {
                 if (u.getEmail().equals(email) && u.getPassword().equals(password)) {
-                    out.println("\n╔══════════════════════════════════════════════════╗");
+                    out.println("\n╔════════════════════════════════════════════════╗");
                     out.println("║ USER FOUND IN MAIN TABLE                         ║");
                     out.println("╠══════════════════════════════════════════════════╣");
                     out.println("║ Name     : " + u.getName());
@@ -2091,7 +2184,7 @@ public class Task {
             }
         }
 
-        out.println("\n╔══════════════════════════════════════════════════╗");
+        out.println("\n╔════════════════════════════════════════════════╗");
         out.println("║ ERROR: User not found in Main Table or Overflow. ║");
         out.println("╚══════════════════════════════════════════════════╝");
         enterToContinue();
@@ -2113,7 +2206,7 @@ public class Task {
         out.println("╠══════════════════════════════════════════════════╣");
         for (int i = 0; i < TABLE_SIZE; i++) {
             if (hashTable[i] != null && !hashTable[i].isEmpty()) {
-                out.println("╠═══ MAIN TABLE INDEX: " + i + " ═════════════════════════════╣");
+                out.println("╠═══ MAIN TABLE INDEX: " + i + " ═══════════════════════════╣");
                 for (User u : hashTable[i]) {
                     out.println("║ Name     : " + u.getName());
                     out.println("║ Email    : " + u.getEmail());
@@ -2215,7 +2308,7 @@ public class Task {
                 for (User u : bucket) {
                     if (u.getEmail().equals(user.getEmail())) {
                         out.println("╔══════════════════════════════════════════════════╗");
-                        out.println("║ ERROR: User already exists at index " + index + ". ║");
+                        out.println("║ ERROR: User already exists at index " + index +".║");
                         out.println("╚══════════════════════════════════════════════════╝");
                         return;
                     }
@@ -2230,9 +2323,9 @@ public class Task {
 
         hashTable[index].add(user);
 
-        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("╔═════════════════════════════════════════════════════════════════════╗");
         out.println("║ SUCCESS: User added at index " + index + " using Quadratic Probing. ║");
-        out.println("╚══════════════════════════════════════════════════╝");
+        out.println("╚═════════════════════════════════════════════════════════════════════╝");
 
         enterToContinue();
     }
@@ -2417,7 +2510,7 @@ public class Task {
                 for (User u : bucket) {
                     if (u.getEmail().equals(user.getEmail())) {
                         out.println("╔══════════════════════════════════════════════════╗");
-                        out.println("║ ERROR: User already exists at index " + index + ". ║");
+                        out.println("║ ERROR: User already exists at index " + index +".║");
                         out.println("╚══════════════════════════════════════════════════╝");
                         return;
                     }
@@ -2432,9 +2525,9 @@ public class Task {
 
         hashTable[index].add(user);
 
-        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("╔══════════════════════════════════════════════════════════════════╗");
         out.println("║ SUCCESS: User added at index " + index + " using Double Hashing. ║");
-        out.println("╚══════════════════════════════════════════════════╝");
+        out.println("╚══════════════════════════════════════════════════════════════════╝");
 
         enterToContinue();
     }
@@ -2622,7 +2715,7 @@ public class Task {
                 for (User u : bucket) {
                     if (u.getEmail().equals(user.getEmail())) {
                         out.println("╔══════════════════════════════════════════════════╗");
-                        out.println("║ ERROR: User already exists at index " + index + ". ║");
+                        out.println("║ ERROR: User already exists at index " + index +".║");
                         out.println("╚══════════════════════════════════════════════════╝");
                         return;
                     }
@@ -2638,9 +2731,9 @@ public class Task {
 
         hashTable[index].add(user);
 
-        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("╔═══════════════════════════════════════════════════════════════════╗");
         out.println("║ SUCCESS: User added at index " + index + " using Linear Quotient. ║");
-        out.println("╚══════════════════════════════════════════════════╝");
+        out.println("╚═══════════════════════════════════════════════════════════════════╝");
 
         enterToContinue();
     }
@@ -2830,7 +2923,7 @@ public class Task {
             for (User u : hashTable[index]) {
                 if (u.getEmail().equals(user.getEmail())) {
                     out.println("╔══════════════════════════════════════════════════╗");
-                    out.println("║ ERROR: User already exists at index " + index + ". ║");
+                    out.println("║ ERROR: User already exists at index " + index +".║");
                     out.println("╚══════════════════════════════════════════════════╝");
                     return;
                 }
@@ -2857,9 +2950,9 @@ public class Task {
 
         hashTable[index].add(user);
 
-        out.println("╔══════════════════════════════════════════════════╗");
+        out.println("╔══════════════════════════════════════════════════════════════════╗");
         out.println("║ SUCCESS: User added at index " + index + " using Brent's Method. ║");
-        out.println("╚══════════════════════════════════════════════════╝");
+        out.println("╚══════════════════════════════════════════════════════════════════╝");
 
         enterToContinue();
     }

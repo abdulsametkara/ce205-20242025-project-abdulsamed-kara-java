@@ -1,47 +1,57 @@
+/**
+ * @file Assignment.java
+ * @brief Represents a task assignment with a deadline.
+ *
+ * This class encapsulates information about a task's deadline, including day, month,
+ * and year. It provides mechanisms for managing deadlines, serialization, and
+ * priority-based organization using a `PriorityQueue`.
+ *
+ * @version 1.0
+ * @date 2024-12-24
+ * @author User
+ */
+
 package com.abdul.fatma.hamza.sahan.task;
 
 import java.io.*;
-import java.util.Scanner;
 import java.util.PriorityQueue;
+import java.util.Scanner;
 
 /**
  * @class Assignment
- * @brief This class represents an assignment with a deadline and provides methods to store and manage deadlines.
+ * @brief Represents an assignment with a deadline.
  *
- * The Assignment class is used to store task information including the task name and its deadline (day, month, and year).
- * The class implements the Comparable interface to allow sorting by deadline, and the Serializable interface for saving
- * and loading assignments from a file.
+ * The `Assignment` class provides functionality to manage tasks with deadlines, including
+ * comparisons for priority-based organization, serialization for persistence, and user-driven
+ * deadline assignment.
  *
- * @note The class supports serialization to enable saving the assignment to a file, and it can also be stored in a
- * PriorityQueue to keep deadlines sorted.
+ * @note Implements `Comparable` for sorting and `Serializable` for file operations.
  */
-
 public class Assignment implements Comparable<Assignment>, Serializable {
 
-    /** @brief Serial version UID for serialization compatibility */
+    /** @brief Serial version UID for serialization compatibility. */
     private static final long serialVersionUID = 1L;
 
-    /** @brief Name of the task */
+    /** @brief Name of the task. */
     private String name;
 
-    /** @brief Day of the deadline */
+    /** @brief Day of the deadline (1-31). */
     private int day;
 
-    /** @brief Month of the deadline */
+    /** @brief Month of the deadline (1-12). */
     private int month;
 
-    /** @brief Year of the deadline */
+    /** @brief Year of the deadline. */
     private int year;
 
     /**
      * @brief Constructor to initialize a new assignment with the task name and deadline.
      *
-     * @param name Name of the task
-     * @param day Day of the deadline
-     * @param month Month of the deadline
-     * @param year Year of the deadline
+     * @param name Name of the task.
+     * @param day Day of the deadline.
+     * @param month Month of the deadline.
+     * @param year Year of the deadline.
      */
-
     public Assignment(String name, int day, int month, int year) {
         this.name = name;
         this.day = day;
@@ -49,8 +59,10 @@ public class Assignment implements Comparable<Assignment>, Serializable {
         this.year = year;
     }
 
+    // --- Getters and Setters ---
+
     /**
-     * @brief Gets the task name.
+     * @brief Retrieves the task name.
      * @return The name of the task.
      */
     public String getName() {
@@ -66,7 +78,7 @@ public class Assignment implements Comparable<Assignment>, Serializable {
     }
 
     /**
-     * @brief Gets the day of the deadline.
+     * @brief Retrieves the day of the deadline.
      * @return The day of the deadline.
      */
     public int getDay() {
@@ -82,7 +94,7 @@ public class Assignment implements Comparable<Assignment>, Serializable {
     }
 
     /**
-     * @brief Gets the month of the deadline.
+     * @brief Retrieves the month of the deadline.
      * @return The month of the deadline.
      */
     public int getMonth() {
@@ -98,7 +110,7 @@ public class Assignment implements Comparable<Assignment>, Serializable {
     }
 
     /**
-     * @brief Gets the year of the deadline.
+     * @brief Retrieves the year of the deadline.
      * @return The year of the deadline.
      */
     public int getYear() {
@@ -113,15 +125,17 @@ public class Assignment implements Comparable<Assignment>, Serializable {
         this.year = year;
     }
 
+    // --- Comparable Implementation ---
+
     /**
      * @brief Compares this assignment with another assignment based on the deadline.
      *
-     * The comparison is done first by year, then by month, and finally by day to establish the order.
+     * The comparison is done first by year, then by month, and finally by day.
      *
      * @param other The other assignment to compare with.
-     * @return A negative integer, zero, or a positive integer if this assignment is less than, equal to, or greater than the other assignment.
+     * @return A negative integer, zero, or a positive integer if this assignment
+     *         is less than, equal to, or greater than the other assignment.
      */
-
     @Override
     public int compareTo(Assignment other) {
         if (this.year != other.year) return this.year - other.year;
@@ -129,10 +143,12 @@ public class Assignment implements Comparable<Assignment>, Serializable {
         return this.day - other.day;
     }
 
+    // --- File Operations ---
+
     /**
      * @brief Writes the assignment object to a file for persistence.
      *
-     * This method uses serialization to write the current assignment object to the specified file.
+     * Serializes the current assignment object and writes it to the specified file.
      *
      * @param fileName The name of the file to write the object to.
      */
@@ -144,13 +160,15 @@ public class Assignment implements Comparable<Assignment>, Serializable {
         }
     }
 
+    // --- Static Method ---
+
     /**
      * @brief Prompts the user to assign a deadline to a task and stores it in a priority queue.
      *
-     * This method takes user input to define a task's name and deadline, and then adds it to the provided priority queue.
-     * The deadline is also written to a file for persistence.
+     * This method interacts with the user to get task details and deadline information.
+     * It validates the input and adds the task to a `PriorityQueue`.
      *
-     * @param deadlineHeap A priority queue to store assignments sorted by deadline.
+     * @param deadlineHeap A `PriorityQueue` to store assignments sorted by deadline.
      */
     public static void assign_deadline(PriorityQueue<Assignment> deadlineHeap) {
         Scanner scanner = new Scanner(System.in);
@@ -170,13 +188,13 @@ public class Assignment implements Comparable<Assignment>, Serializable {
             }
         } catch (Exception e) {
             System.out.println("Invalid input! Please try again.");
-            scanner.nextLine(); // Temizleme
+            scanner.nextLine(); // Clear buffer
             return;
         }
 
-        // Yeni bir Assignment oluştur ve MinHeap'e ekle
+        // Create a new assignment and add it to the priority queue
         Assignment assignment = new Assignment(taskName, day, month, year);
-        deadlineHeap.add(assignment); // PriorityQueue kullanıyoruz
+        deadlineHeap.add(assignment);
         assignment.writeToFile("deadlines.bin");
 
         System.out.println("Deadline assigned and saved successfully!");
