@@ -19,18 +19,18 @@
 	<inceptionYear>2023</inceptionYear>
 	<developers>
 		<developer>
-			<name>Asst. Prof. Dr. Ugur CORUH</name>
+			<name>Abdul Samed Kara</name>
 			<organization>RTEU</organization>
-			<email>ugur.coruh@erdogan.edu.tr</email>
+			<email>abdulsamed_kara21@erdogan.edu.tr</email>
 			<roles>
 				<role>Developer</role>
 				<role>Designer</role>
 			</roles>
 		</developer>
 		<developer>
-			<name>Other Person</name>
+			<name>Fatma Ciran Akbas</name>
 			<organization>RTEU</organization>
-			<email>mail@gmail.com</email>
+			<email>fatmaciran_akbas21@erdogan.edu.tr</email>
 			<roles>
 				<role>Developer</role>
 			</roles>
@@ -38,8 +38,8 @@
 	</developers>
 	<contributors>
 		<contributor>
-			<name>Asst. Prof. Dr. Ugur CORUH</name>
-			<email>ugur.coruh@erdogan.edu.tr</email>
+			<name>Omer Sahan Sofu</name>
+			<email>omersahan_sofu22@erdogan.edu.tr</email>
 			<organization>RTEU</organization>
 			<roles>
 				<role>Developer</role>
@@ -47,15 +47,15 @@
 			</roles>
 		</contributor>
 		<contributor>
-			<name>Other Person</name>
+			<name>Vahit Hamza Baran </name>
 			<organization>RTEU</organization>
-			<email>mail@gmail.com</email>
+			<email>vahithamza_baran22@erdogan.edu.tr</email>
 			<roles>
 				<role>Developer</role>
 			</roles>
 		</contributor>
 	</contributors>
-	<description>Maven Example Template Project</description>
+	<description>Task Manager Project</description>
 	<organization>
 		<name>Recep Tayyip Erdogan University</name>
 		<url>www.erdogan.edu.tr</url>

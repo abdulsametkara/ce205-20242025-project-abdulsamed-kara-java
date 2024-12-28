@@ -3096,4 +3096,19 @@ public void testUserOptionsMenu_InvalidChoice() {
     System.setOut(System.out);
   }
 
+  @Test
+  public void testViewTask() {
+    // Arrange
+    String simulatedInput = "1\n1\na\na\na\n1000 10 10\n1\n4\n\n9\n2\n1\na\n10 10 2010\n2\n\n\n4\n6\n3\n";
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    task.userOptionsMenu();
+  }
+
 }
