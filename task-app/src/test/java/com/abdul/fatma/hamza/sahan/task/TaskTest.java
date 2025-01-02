@@ -531,25 +531,6 @@ public class TaskTest {
     // Cleanup
     System.setIn(originalIn);
   }
-/*  @Test
-  public void testCreateTaskMenuXORLinkedList() {
-    // Arrange
-    String input = "8\n1\n2\n0\n\n9\n6\n3\n";
-    InputStream inputStream = new ByteArrayInputStream(input.getBytes());
-    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-
-    System.setIn(inputStream); // Simulated user input
-    System.setOut(new PrintStream(outContent)); // Capture output
-
-    Task task = new Task(new Scanner(System.in), System.out);
-
-    // Act
-    task.createTaskMenu();
-    // Cleanup
-    System.setIn(originalIn);
-  }*/
-
-
 
   @Test
   public void testMainMenu_ValidInputs() {
@@ -647,38 +628,22 @@ public class TaskTest {
     System.setIn(originalIn);
   }
 
-//  @Test
-//  public void testViewDeadlineInRangeTest() {
-//    // Arrange
-//    String input = "3\n12 12 2222\n13 12 2222\n\n4\n6\n3\n";
-//    InputStream inputStream = new ByteArrayInputStream(input.getBytes());
-//    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-//
-//    System.setIn(inputStream); // Simulated user input
-//    System.setOut(new PrintStream(outContent)); // Capture output
-//
-//    Task task = new Task(new Scanner(System.in), System.out);
-//
-//    // Act
-//    task.deadlineSettingsMenu();
-//    // Cleanup
-//    System.setIn(originalIn);
-//  }
-@Test
-public void testUserOptionsMenu_InvalidChoice() {
-  // Arrange
-  String simulatedInput = "99\n\n6\n3\n"; // 99 -> Invalid choice, 3 -> Exit Program
-  InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
-  ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 
-  System.setIn(inputStream); // Simüle edilmiş giriş
-  System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
+  @Test
+  public void testUserOptionsMenu_InvalidChoice() {
+    // Arrange
+    String simulatedInput = "99\n\n6\n3\n"; // 99 -> Invalid choice, 3 -> Exit Program
+    InputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes());
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 
-  Task task = new Task(new Scanner(System.in), System.out);
+    System.setIn(inputStream); // Simüle edilmiş giriş
+    System.setOut(new PrintStream(outContent)); // Çıktıyı yakala
 
-  // Act
-  task.userOptionsMenu();
-}
+    Task task = new Task(new Scanner(System.in), System.out);
+
+    // Act
+    task.userOptionsMenu();
+  }
 
   @Test
   public void testOptionsMenu_InputErrorHandling() {
